@@ -3,5 +3,49 @@ General Information
 
 Schedual Builder Senior Project for cs490
 
+MileStones
+==========
+10% - Feb 17th (Alpha)
+10% - March 9th (Beta)
+20% - April 13th (Release Candidate)
+30% - May 1st (Final Version)
+
 Specifications
 ==============
+
+ - Has to run on AFS
+ - Check for conflicts
+ - Try to build a scedual based on classes based on
+        inputed settings (time, day, ect)
+ - Output to Google/iCal
+ - CRN Number
+ - Scrapping from Website
+        http://courseschedules.njit.edu/index.aspx?semester=2012s
+ - AJAX
+ - Pretty
+ - Multiple selections
+ - Personal Constraints
+ - Middleend written in PHP
+ - Prerequsizite visualzation
+ - Login ablility to save between sessions
+ - Some kind of interoperablility(xml, JSON, REST, SOAP)
+
+---------
+| Alpha |
+---------
+Basic Website running on AFS, with some database interaction
+
+--------
+| Beta |
+--------
+Basic Elements, Major Componints
+
+---------------------
+| Release Candidate |
+---------------------
+Finishing All Major Componints, Everything works.
+
+-----------
+| Release |
+-----------
+Final Polishing
