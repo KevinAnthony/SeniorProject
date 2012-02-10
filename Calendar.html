@@ -74,7 +74,7 @@
  			
  			var scheduleLayer = new Kinetic.Layer();
  			
- 			addBlock(scheduleLayer, 3, 3, 0, 1, 4, 20, 1);
+ 			addBlock(scheduleLayer, 3, 750, 830);
  			//addBlock(scheduleLayer, 2, 2, 0, 1, 3, 20, 1);
 	      	/*var circle = new Kinetic.Shape(function(){
                 var canvas = this.getCanvas();
@@ -107,12 +107,13 @@
             
         };
         
-		function addBlock(scheduleLayer, day, STimeH, STimeM, STAP, FTimeH, FTimeM, FTAP){	
+        //start_time, end_time in minutes
+		function addBlock(scheduleLayer, day, start_time, end_time){	
  			var block = new Kinetic.Shape(function(){
  				var tX = DayToPixels(day);
- 				var tY = TimeToPixels(STimeH, STimeM, STAP);
+ 				var tY = TimeToPixels(start_time);
  				var w = DayToPixels(day+1) - tX;
- 				var h = TimeToPixels(FTimeH, FTimeM, FTAP) - tY;
+ 				var h = TimeToPixels(end_time) - tY;
  				var context = this.getContext();
 	            
 				context.rect(tX, tY, w, h);
@@ -132,16 +133,12 @@
  		};
  
         
-        function TimeToPixels(hours, minutes, ap){
-        	if(ap == 0 || ap == "am" || (hours == 12 && ap == 1)){
-            	var pixies = hours * 60 + minutes;
-            	pixies -= (510 - offset);
-			} else {
-				var pixies = (hours + 12) * 60 + minutes;
-            	pixies -= (510 - offset);
-			}
+        function TimeToPixels(time){
+			var position;
+        	position = time - (510 - offset);
 			
-			return pixies;
+			//console.write(pixies + '\n');
+			return position;
         };
         
         function DayToPixels(day){
@@ -156,6 +153,13 @@
     </script>
 </head>
 <body onmousedown="return false;">
+	<button onClick="">Get!</button></br>
+	<select>
+	  <option value="424">Opt1</option>
+	  <option value="310">Opt2</option>
+	</select> 
+	<button onClick="">Display!</button>
+	<button onClick="">Remove!</button>
     <div id="cont">
     </div>
 </body>
