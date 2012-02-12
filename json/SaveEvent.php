@@ -1,50 +1,63 @@
 <?php
-$start_day = $_GET["start_day"];
+
+$day = $_GET["day"];
 $start_time = $_GET["start_time"];
 $end_time = $_GET["end_time"];
 $return_array = Array("success" => true);
 
-if (empty($start_day)){
+#first we validate the inputs, making sure they are there.  Also, make sure they are within range
+if (empty($day)){
     $return_array["success"]=false;
-    $return_array["error"]=(empty($return_array["error"]) ? "VALUEERROR: start_day empty" : $return_array["error"] .';'. "VALUEERROR: start_day empty");
+    $error_message = "VALUEERROR: day paramiter not passed";
+    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+} else if (($day > 5) || ($start_time < 0)){
+    $return_array["success"]=false;
+    $error_message = "VALUEERROR: day is $day value should be >0 and <=5";
+    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
 }
 if (empty($start_time)){
     $return_array["success"]=false;
-    $return_array["error"]=(empty($return_array["error"]) ? "VALUEERROR: start_time empty" : $return_array["error"] .';'. "VALUEERROR: start_time empty");
-} else if ($start_time > 1440){
+    $error_message = "VALUEERROR: start_time paramiter not passed";
+    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+} else if (($start_time > 1440) || ($start_time < 0)){
     $return_array["success"]=false;
-    $return_array["error"]=(empty($return_array["error"]) ? "VALUEERROR: start_time to large greater then 1440" : $return_array["error"] .';'. "VALUEERROR: start_time to large greater then 1440");
+    $error_message = "VALUEERROR: start_time is $start_time value should be >0 and <=1440";
+    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
 }
 if (empty($end_time)){
     $return_array["success"]=false;
-    $return_array["error"]=(empty($return_array["error"]) ? "VALUEERROR: end_time empty" : $return_array["error"] .';'. "VALUEERROR: end_time empty");
-} else if ($end_time > 1440){
+    $error_message = "VALUEERROR: day paramiter not passed";
+    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+} else if (($end_time > 1440) || ($end_time < 0)){
     $return_array["success"]=false;
-    $return_array["error"]=(empty($return_array["error"]) ? "VALUEERROR: end_time to large greater then 1440" : $return_array["error"] .';'. "VALUEERROR: end_time to large greater then 1440");
+    $error_message = "VALUEERROR: end_time is $end_time value should be >0 and <=1440";
+    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
 }
 if ($start_time >= $end_time){
     $return_array["success"]=false;
-    $return_array["error"]=(empty($return_array["error"]) ? "VALUEERROR: end_time before start_time" : $return_array["error"] .';'. "VALUEERROR: end_time before start_time");
+    $error_message = "VALUEERROR: start_time:$start_time before end_time:$end_time ";
+    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
 }
 if ($return_array["success"]){
-    if ($start_day = 0) {
-        $return_array["Day"] = "Monday";
-    } else if ($start_day = 1) {
-        $return_array["Day"] = "Tuesday";
-    } else if ($start_day = 2) {
-        $return_array["Day"] = "Wednesday";
-    } else if ($start_day = 3) {
-        $return_array["Day"] = "Thursday";
-    } else if ($start_day = 4) {
-        $return_array["Day"] = "Friday";
-    } else if ($start_day = 5) {
-        $return_array["Day"] = "Saterday";
-    } else {
+    $connection = mysql_connect('sql.njit.edu','ejw3_proj','ozw6OBAO') ;
+    if (!$connection){
         $return_array["success"]=false;
-        $return_array["error"] = "start_day out of range... please use 0-5";
+        $error_message = "SQLERROR: Error Connectiong to database -- ".mysql_error();
+        $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+        echo json_encode($return_array);
+        die();
     }
-    $return_array["Start Time"] = sprintf("%02d:%02d",intval($start_time/60),$start_time%60);
-    $return_array["End Time"] = sprintf("%02d:%02d",intval($end_time/60),$end_time%60);
+    mysql_select_db('ejw3_proj');
+    $query = "insert into EVENT (START_TIME,END_TIME,DAY) values ('$start_time','$end_time','$day');";
+    $result = mysql_query($query);
+    if (!$result){
+        $return_array["success"]=false;
+        $error_message = "SQLERROR: Error inserting into database -- ".mysql_error();
+        $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+    }
 }
+mysql_free_result($result);
+mysql_close($connection);
 echo json_encode($return_array);
 ?>
+
