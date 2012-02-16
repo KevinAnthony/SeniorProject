@@ -2,6 +2,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 
 <head>
+	<LINK href="Cal.css" rel="stylesheet" type="text/css">
     <script src="kinetic-v3.6.4.js">
     </script>
     <script>
@@ -138,7 +139,8 @@
 				        	var time = text.data[i].start_time / 60;
 				        	time = Math.floor(time);
 				        	var mins = text.data[i].start_time % 60;
-		        			list += "<option value=\""+i+"\">" + text.data[i].day + " - " + time + ":" + mins + "</option>";
+				        	(mins < 10) ? mins = ("0" + mins) : null;
+		        			list += "<option value=\""+i+"\" class=\"opt\">" + text.data[i].day + " - " + time + ":" + mins + "</option>";
 	                		blocks[i] = null;
 	                	}
 	                	document.getElementById("sbox").innerHTML=list;
@@ -184,15 +186,17 @@
 	<!-- In reality, this will have a topic selection (eg. CS, MATH) -->
 	<!-- This will load the courses, you can then add a course to your schedule -->
 	<!-- There will also be a custom field to add custom events -->
+	<div id="buttons">
+		<button onClick="populateList()" class="button">Get!</button>
+		</br>
+		</br>
+		<select id="sbox" class="selector">
+			<option class="opt">0 - 0:00</option>
+		</select> 
 	
-	<button onClick="populateList()">Get!</button>
-	</br>
-	<select id="sbox">
-		<option>0 - 0:0</option>
-	</select> 
-	<button onClick="displaySelected()">Display!</button>
-	<button onClick="removeSelected()">Remove!</button>
-    
+		<button onClick="displaySelected()" class="button">Display!</button>
+		<button onClick="removeSelected()" class="button">Remove!</button>
+    </div>
     <div id="cont">
     </div>
 </body>
