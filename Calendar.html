@@ -1,22 +1,29 @@
+<!DOCTYPE html>
 <head>
+	<meta http-equiv="X-UA-Compatible" value="IE=9">
+	<LINK href="Cal.css" rel="stylesheet" type="text/css">
     <script src="kinetic-v3.6.4.js">
     </script>
     <script>
     	var stage;
     	var wInner;
     	var offset;
-    	
+    	var start_of_day;
+    	var scheduleLayer = new Kinetic.Layer();
+
     	window.onload = function(){
+    		start_of_day = 420;
         	wInner = window.innerWidth - 30;
             stage = new Kinetic.Stage("cont", wInner, 1100);
             var calendarLayer = new Kinetic.Layer();
             
             var divs = 7;	
-            offset = 150;
+            offset = 100;
             var topX = wInner / (divs * 2) + 0.5;			//column size / 2 padding on each side
 			var topY = offset + 0.5;	
 			var width = wInner - 2*topX;
-			var height = 810;										//this maps 1 pixel : 1 minute, nifty
+			var height = 900;										//this maps 1 pixel : 1 minute, nifty
+		 	var divs = height / 30;
 		 	var i = 0;
             
             var calBase = new Kinetic.Shape(function(){
@@ -39,17 +46,17 @@
 					context.stroke();
 				}
 				
-				for(i=1; i<=27; i++){										//horizontal lines (ea. 30m), time
-					var pos = topY + (i * height/27);
+				for(i=0; i<=divs; i++){										//horizontal lines (ea. 30m), time
+					var pos = topY + (i * height / divs);
 					context.moveTo(topX, pos);
 					context.lineTo(topX+width, pos);
 					context.lineWidth = 1;
 					context.strokeStyle = "#7E7E7C";
 					context.stroke();
 					
-					if(i % 2){												//time, skips the :30s
+					if(!(i % 2)){											//time, skips the :30s
 						var x = topX - 10;
-						var time = pos - (offset + 0.5) + 510;				//since pixels map to minutes, 0 time (8:30, 510m) is at the offset
+						var time = pos - (offset + 0.5) + start_of_day;		//since pixels map to minutes, 0 time (7:00, 480m) is at the offset
 					 	context.fillStyle = "#000000"
 						context.font = "11pt Courier";
 						context.textAlign = "right"
@@ -71,48 +78,16 @@
  
             calendarLayer.add(calBase);
             stage.add(calendarLayer);
- 			
- 			var scheduleLayer = new Kinetic.Layer();
- 			
- 			addBlock(scheduleLayer, 3, 3, 0, 1, 4, 20, 1);
- 			//addBlock(scheduleLayer, 2, 2, 0, 1, 3, 20, 1);
-	      	/*var circle = new Kinetic.Shape(function(){
-                var canvas = this.getCanvas();
-                var context = this.getContext();
-                context.beginPath();
-                context.arc(380, canvas.height / 2, 70, 0, Math.PI * 2, true);
-                context.fillStyle = "red";
-                context.fill();
-                context.lineWidth = 4;
-                context.stroke();
-            });
- 
-            circle.on("mouseover", function(){
-                writeMessage(messageLayer, "Mouseover circle");
-            });
-            circle.on("mouseout", function(){
-                writeMessage(messageLayer, "Mouseout circle");
-            });
-            circle.on("mousedown", function(){
-                writeMessage(messageLayer, "Mousedown circle");
-            });
-            circle.on("mouseup", function(){
-                writeMessage(messageLayer, "Mouseup circle");
-            });
- 
-            shapesLayer.add(circle);
- 
-            
-            stage.add(messageLayer);*/
             
         };
         
-		function addBlock(scheduleLayer, day, STimeH, STimeM, STAP, FTimeH, FTimeM, FTAP){	
+        //start_time, end_time in minutes
+		function addBlock(scheduleLayer, day, start_time, end_time){	//generates a rectangle of specified dimensions
  			var block = new Kinetic.Shape(function(){
  				var tX = DayToPixels(day);
- 				var tY = TimeToPixels(STimeH, STimeM, STAP);
+ 				var tY = TimeToPixels(start_time);
  				var w = DayToPixels(day+1) - tX;
- 				var h = TimeToPixels(FTimeH, FTimeM, FTAP) - tY;
+ 				var h = TimeToPixels(end_time) - tY;
  				var context = this.getContext();
 	            
 				context.rect(tX, tY, w, h);
@@ -120,42 +95,117 @@
 				context.fill();4	
 				context.lineWidth = 2;
 				context.strokeStyle = "#000000";
-				/*context.shadowColor = "#000000";
-				context.shadowBlur = 10;
-				context.shadowOffsetX = 5;
-				context.shadowOffsetY = 5;//*/
+				
 				context.stroke(); //draw
  			});
 
  			scheduleLayer.add(block);
  			stage.add(scheduleLayer);
+ 			return block;
  		};
  
         
-        function TimeToPixels(hours, minutes, ap){
-        	if(ap == 0 || ap == "am" || (hours == 12 && ap == 1)){
-            	var pixies = hours * 60 + minutes;
-            	pixies -= (510 - offset);
-			} else {
-				var pixies = (hours + 12) * 60 + minutes;
-            	pixies -= (510 - offset);
-			}
+        function TimeToPixels(time){						//adjusts the time by the offset and the start time of calendar
+			var position;
+        	position = time - (start_of_day - offset);
 			
-			return pixies;
+			//console.write(pixies + '\n');
+			return position;
         };
         
-        function DayToPixels(day){
+        function DayToPixels(day){							//returns the pixel position of a given day
         	var pixals = 0;
-        	pixals += (wInner/14) + day * (wInner/7);
+        	pixals += (wInner/14) + (day * (wInner/7));
         	return Math.floor(pixals);
         };
         
+        var toggle = 0;
+        var tgle = 1;
+        var text = {};
+        function populateList(){							//retrieves list from the server, adds it to the option box
+        	if(toggle == 0){
+		    	var jsonGet = new XMLHttpRequest();
+		    	jsonGet.open("GET","./json/GetAllEvents.php");
+		        jsonGet.onreadystatechange = function () {
+		        	//console.log(jsonGet.readyState);
+		        	//console.log(jsonGet.status);
+					if(jsonGet.readyState == 4 && jsonGet.status == 200){
+				        text = JSON.parse(jsonGet.responseText);
+				        var i;
+				        var list = "<select id=\"sbox\" class=\"selector\">";
+				        for(i=0; i < text.data.length; i++){
+				        	//text.data[i].start_time = parseInt(text.data[i].start_time);
+				        	//text.data[i].end_time = parseInt(text.data[i].end_time);
+				        	//text.data[i].day = parseInt(text.data[i].day);
+				        	var time = text.data[i].start_time / 60;
+				        	time = Math.floor(time);
+				        	var mins = text.data[i].start_time % 60;
+				        	(mins < 10) ? mins = ("0" + mins) : null;
+		        			list += "<option value=\""+i+"\" class=\"opt\">" + text.data[i].day + " - " + time + ":" + mins + "</option>";
+	                		blocks[i] = null;
+	                	}
+	                	list += "</select>";
+						document.getElementById("sdiv").innerHTML=list;
+			    	}
+			    };
+			    jsonGet.send();
+			    toggle = 1;
+			} else {}
+
+		};
+		
+		//{"success":true,"number_of_rows":2,"0":{"id":"7","event_name":null,"day":"3","start_time":"510","end_time":"617"},"1":{"id":"8","event_name":null,"day":"3","start_time":"510","end_time":"617"}}
+		/*
+			if(text.success)
+		*/
+		
+		var blocks = [];
+		function displaySelected(){								//generates a block for the selected option
+			var sel = document.getElementById("sbox").value;
+			var start = ((text.data[sel].start_time < start_of_day) ? 420 : text.data[sel].start_time);
+			var end = ((text.data[sel].end_time > (900 + start_of_day)) ? (900 + start_of_day) : text.data[sel].end_time);
+			if(end > start_of_day && start < (900 + start_of_day) && blocks[sel] == null){
+				blocks[sel] = addBlock(scheduleLayer, text.data[sel].day, start, end); 
+			}	
+		};
+			
+		function removeSelected(){								//removes the block of the selected option
+			var sel = document.getElementById("sbox").value;
+			if(blocks[sel] != null){
+				scheduleLayer.remove(blocks[sel]);
+				stage.add(scheduleLayer);
+				blocks[sel] = null;
+			}
+		};
+		
+
+        
         //Block size to font size
+        //text handling
         //wrap create block
-        //How will we pass classes/times, arrays?
     </script>
 </head>
-<body onmousedown="return false;">
+<body>
+	<!-- In reality, this will have a topic selection (eg. CS, MATH) -->
+	<!-- This will load the courses, you can then add a course to your schedule -->
+	<!-- There will also be a custom field to add custom events -->
+	<div id="buttons" class="selDiv">
+		<button onClick="populateList()" class="button">Get!</button>
+	</div>
+	</br>	
+	<div id="sdiv" class="selDiv">
+		<select id="sbox" class="selector">
+			<option class="opt">0 - 0:00</option>
+		</select> 
+	</div>
+	</br>
+	<div id="moreButtons" class="selDiv">
+		<button onClick="displaySelected()" class="button">Display!</button>
+		<button onClick="removeSelected()" class="button">Remove!</button>
+    </div>
+    
     <div id="cont">
     </div>
 </body>
+
+<!--http://web.njit.edu/~ka79/json/SaveEvent.php?day=1&start_time=2200&end_time=3300-->
