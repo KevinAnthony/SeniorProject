@@ -1,3 +1,19 @@
+2012-02-17  Erika Waldinger <ejw3@njit.edu>
+
+	* tablecreation.php: Database table creation queries with constraints.
+
+2012-02-16  Douglas Goddard <edwardhowl@gmail.com>
+
+	* Cal.css: Alpha - Changes due to IE bugs.
+
+	* Calendar.html: Alpha - Fixed bugs for Internet Explorer.
+
+2012-02-16  Kevin Anthony <kevin.s.anthony@gmail.com>
+
+	* json/GetAllEvents.php: Corrected problem with older code
+
+	* ChangeLog, json/GetAllEvents.php: Changed the way GetAlLEvents pushed data
+
 2012-02-13  Douglas Goddard <edwardhowl@gmail.com>
 
 	* Calendar.html: Retrieves from GetAllEvents. Add and remove event blocks.
