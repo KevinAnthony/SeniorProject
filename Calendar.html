@@ -149,7 +149,7 @@
 			    	}
 			    };
 			    jsonGet.send();
-			    toggle = 1;
+			    toggle = 0;
 			} else {}
 
 		};
@@ -179,7 +179,14 @@
 		};
 		
 
-        
+        function sendEvent(){
+        	var startTime = document.getElementById("sbox1").value;
+        	var endTime = document.getElementById("sbox2").value;
+        	var day = document.getElementById("sbox3").value;
+        	var jsonGet = new XMLHttpRequest();
+		    jsonGet.open("POST","./json/SaveEvent.php?day=" + day + "&start_time=" + startTime + "&end_time=" + endTime);
+		    jsonGet.send();
+        }
         //Block size to font size
         //text handling
         //wrap create block
@@ -203,6 +210,24 @@
 		<button onClick="displaySelected()" class="button">Display!</button>
 		<button onClick="removeSelected()" class="button">Remove!</button>
     </div>
+    </br>
+    <div id="sdiv" class="selDiv">
+    	<select id="sbox3" class="selector">
+    		<option class="opt">0</option>
+    		<option class="opt">1</option>
+    	</select>
+		<select id="sbox1" class="selector">
+			<option class="opt">600</option>
+			<option class="opt">500</option>
+			<option class="opt">400</option>
+		</select> 
+		<select id="sbox2" class="selector">
+			<option class="opt">700</option>
+			<option class="opt">650</option>
+			<option class="opt">660</option>
+		</select> 
+		<button onclick="sendEvent()" class="button">Add!</button>
+	</div>
     
     <div id="cont">
     </div>
