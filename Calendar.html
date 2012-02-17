@@ -1,7 +1,6 @@
-<!--http://web.njit.edu/~ka79/json/SaveEvent.php?day=1&start_time=2200&end_time=3300-->
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-
+<!DOCTYPE html>
 <head>
+	<meta http-equiv="X-UA-Compatible" value="IE=9">
 	<LINK href="Cal.css" rel="stylesheet" type="text/css">
     <script src="kinetic-v3.6.4.js">
     </script>
@@ -126,12 +125,14 @@
         function populateList(){							//retrieves list from the server, adds it to the option box
         	if(toggle == 0){
 		    	var jsonGet = new XMLHttpRequest();
-		    	jsonGet.open("GET","./json/GetAllEvents.php",true);
+		    	jsonGet.open("GET","./json/GetAllEvents.php");
 		        jsonGet.onreadystatechange = function () {
-				        var done = 4, ok = 200;
+		        	//console.log(jsonGet.readyState);
+		        	//console.log(jsonGet.status);
+					if(jsonGet.readyState == 4 && jsonGet.status == 200){
 				        text = JSON.parse(jsonGet.responseText);
 				        var i;
-				        var list = "";
+				        var list = "<select id=\"sbox\" class=\"selector\">";
 				        for(i=0; i < text.data.length; i++){
 				        	//text.data[i].start_time = parseInt(text.data[i].start_time);
 				        	//text.data[i].end_time = parseInt(text.data[i].end_time);
@@ -143,7 +144,9 @@
 		        			list += "<option value=\""+i+"\" class=\"opt\">" + text.data[i].day + " - " + time + ":" + mins + "</option>";
 	                		blocks[i] = null;
 	                	}
-	                	document.getElementById("sbox").innerHTML=list;
+	                	list += "</select>";
+						document.getElementById("sdiv").innerHTML=list;
+			    	}
 			    };
 			    jsonGet.send();
 			    toggle = 1;
@@ -186,17 +189,23 @@
 	<!-- In reality, this will have a topic selection (eg. CS, MATH) -->
 	<!-- This will load the courses, you can then add a course to your schedule -->
 	<!-- There will also be a custom field to add custom events -->
-	<div id="buttons">
+	<div id="buttons" class="selDiv">
 		<button onClick="populateList()" class="button">Get!</button>
-		</br>
-		</br>
+	</div>
+	</br>	
+	<div id="sdiv" class="selDiv">
 		<select id="sbox" class="selector">
 			<option class="opt">0 - 0:00</option>
 		</select> 
-	
+	</div>
+	</br>
+	<div id="moreButtons" class="selDiv">
 		<button onClick="displaySelected()" class="button">Display!</button>
 		<button onClick="removeSelected()" class="button">Remove!</button>
     </div>
+    
     <div id="cont">
     </div>
 </body>
+
+<!--http://web.njit.edu/~ka79/json/SaveEvent.php?day=1&start_time=2200&end_time=3300-->
