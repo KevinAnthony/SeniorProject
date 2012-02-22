@@ -20,7 +20,7 @@ Specifications
  - Output to Google/iCal
  - CRN Number
  - Scrapping from Website
-        http://courseschedules.njit.edu/index.aspx?semester=2012s
+    http://courseschedules.njit.edu/index.aspx?semester=2012s
  - AJAX
  - Pretty
  - Multiple selections
