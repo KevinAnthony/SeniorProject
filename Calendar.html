@@ -18,7 +18,7 @@
             var calendarLayer = new Kinetic.Layer();
             
             var divs = 7;	
-            offset = 100;
+            offset = 40;
             var topX = wInner / (divs * 2) + 0.5;			//column size / 2 padding on each side
 			var topY = offset + 0.5;	
 			var width = wInner - 2*topX;
@@ -186,7 +186,12 @@
         	var jsonGet = new XMLHttpRequest();
 		    jsonGet.open("POST","./json/SaveEvent.php?day=" + day + "&start_time=" + startTime + "&end_time=" + endTime);
 		    jsonGet.send();
-        }
+        };
+        
+        function loginBoxToggle(){
+        	var overlay = document.getElementById("overlay");
+			overlay.style.visibility = (overlay.style.visibility == "visible") ? "hidden" : "visible";
+        };
         //Block size to font size
         //text handling
         //wrap create block
@@ -196,6 +201,73 @@
 	<!-- In reality, this will have a topic selection (eg. CS, MATH) -->
 	<!-- This will load the courses, you can then add a course to your schedule -->
 	<!-- There will also be a custom field to add custom events -->
+	<div id="overlay">
+		 <div>
+		 	<table align="right">
+		      	<tr>
+		      		<td>
+		      			<a href="#" onClick="loginBoxToggle()" id="closeLogin">Close</a>
+		      		<dt>
+		      	</tr>
+	      	</table>
+	      	<br/><br/>
+      		<form>
+				Username:<br/><input type="text" name="username"/><br/>
+				Password:<br/><input type="password" name="password"/><br/>
+	      	</form>
+		 </div>
+	</div>
+	
+	<div id="selectors">
+		<table align="right">
+			<tr>
+				<td	id="loginColumn">
+					<a id="loginLink" href="#" onClick="loginBoxToggle()">Login / Register</a>
+				</td>
+			</tr>		
+		</table>
+	
+		<table>
+			<tr>
+				<td id="subjectColumn">
+					<select id="subjectSelector" class="selector">
+						<option class="opt">Select Subject</option>
+					</select>
+				</td>
+			
+		   		<td id="classColumn">
+		   			<select id="classSelector" class="selector">
+						<option class="opt">Select Class</option>
+					</select>
+		   		</td>
+		   		
+				<td id="sectionColumn">
+					<select id="sectionSelector" class="selector">
+						<option class="opt">Select Section</option>
+					</select>
+				</td>
+			
+				<td	id="buttonColumn">
+					<button onClick="" class="button">Add</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<div id="savedSchedules" align="center">
+		<button onClick="" onMouseOver="" class="scheduleButton">S1</button>
+		<button onClick="" onMouseOver="" class="scheduleButton">S2</button>
+		<button onClick="" onMouseOver="" class="scheduleButton">S3</button>
+		<button onClick="" onMouseOver="" class="scheduleButton">N1</button>
+	</div>
+	<div>
+		
+	</div>
+	<div id="cont">
+		<!-- The schedule shows up in here -->
+    </div>
+	
+	<!--
 	<div id="buttons" class="selDiv">
 		<button onClick="populateList()" class="button">Get!</button>
 	</div>
@@ -229,8 +301,8 @@
 		<button onclick="sendEvent()" class="button">Add!</button>
 	</div>
     
-    <div id="cont">
-    </div>
+    
+    -->
 </body>
 
 <!--http://web.njit.edu/~ka79/json/SaveEvent.php?day=1&start_time=2200&end_time=3300-->
