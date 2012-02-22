@@ -39,25 +39,40 @@ if ($start_time >= $end_time){
     $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
 }
 if ($return_array["success"]){
-    $connection = mysql_connect('sql.njit.edu','ejw3_proj','ozw6OBAO') ;
-    if (!$connection){
+    if(isset($_COOKIE['SID'])){
+        session_id($_COOKIE['SID']);
+        session_start();
+        if(isset($_SESSION['Username'])){
+            $username = $_SESSION['Username'];
+            $connection = mysql_connect('sql.njit.edu','ejw3_proj','ozw6OBAO') ;
+            if (!$connection){
+                $return_array["success"]=false;
+                $error_message = "SQLERROR: Error Connectiong to database -- ".mysql_error();
+                $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+                echo json_encode($return_array);
+                die();
+            }
+            mysql_select_db('ejw3_proj');
+            $query = "insert into EVENT (START_TIME,END_TIME,DAY) values ('$start_time','$end_time','$day');";
+            $result = mysql_query($query);
+            if (!$result){
+                $return_array["success"]=false;
+                $error_message = "SQLERROR: Error inserting into database -- ".mysql_error();
+                $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+            }
+            mysql_free_result($result);
+            mysql_close($connection);
+        } else {
+            $return_array["success"]=false;
+            $error_message = "SESSIONERROR: Session Expired";
+            $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+        }   
+    } else {
         $return_array["success"]=false;
-        $error_message = "SQLERROR: Error Connectiong to database -- ".mysql_error();
-        $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
-        echo json_encode($return_array);
-        die();
-    }
-    mysql_select_db('ejw3_proj');
-    $query = "insert into EVENT (START_TIME,END_TIME,DAY) values ('$start_time','$end_time','$day');";
-    $result = mysql_query($query);
-    if (!$result){
-        $return_array["success"]=false;
-        $error_message = "SQLERROR: Error inserting into database -- ".mysql_error();
+        $error_message = "SESSIONERROR: Login Required";
         $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
     }
 }
-mysql_free_result($result);
-mysql_close($connection);
 echo json_encode($return_array);
 ?>
 
