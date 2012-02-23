@@ -22,7 +22,6 @@ if (empty($username) or empty($password)){
     $escaped_password_hash = mysql_real_escape_string($password_hash);
     
     $query = "select count(*) from USER where USERNAME = '$escaped_username' AND PASSWORD = '$escaped_password_hash';";
-    print "$query<br>";
     $result = mysql_query($query);
     if (!$result){
         $return_array["success"]=false;
