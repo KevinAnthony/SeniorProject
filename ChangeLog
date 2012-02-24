@@ -1,3 +1,35 @@
+2012-02-23  Kevin Anthony <kevin.s.anthony@gmail.com>
+
+	* json/GetSubjects.php: Added new API Fucntion: GetSubjects.php  Takes
+	nothing in returns department
+
+	* json/GetCourseNumbers.php: Added new API Fucntion: GetCourseNumbers.php 
+	Takes in department Returns course_number
+
+	* json/GetClassTimes.php: Added new API Fucntion: GetClassTimes.php  Takes in
+	Course_Number and Department Number Returns CRN, day, start_time, end_time,
+	room, instructor
+
+	* json/Login.php: Removed leftover echo statment
+
+2012-02-22  Kevin Anthony <kevin.s.anthony@gmail.com>
+
+	* json/SaveEvent.php: Forgot to add username to insert
+
+	* json/DeleteEvent.php, json/GetAllEvents.php, json/SaveEvent.php: Added
+	Session Information to existing functions
+
+	* ChangeLog, README, json/Login.php, json/Logout.php, json/Register.php:
+	Added Login and Logout scripts, along with session infomation
+
+2012-02-22  Douglas Goddard <edwardhowl@gmail.com>
+
+	* Cal.css, Calendar.html: Skeleton for beta. Missing save button.
+
+2012-02-17  Douglas Goddard <edwardhowl@gmail.com>
+
+	* Calendar.html: Working prensentation for Alpha.
+
 2012-02-17  Erika Waldinger <ejw3@njit.edu>
 
 	* tablecreation.php: Database table creation queries with constraints.

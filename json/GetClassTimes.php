@@ -27,7 +27,7 @@ if (!$connection){
 }
 
 mysql_select_db('ejw3_proj');
-$query = "select * from S12_COURSE_TIMES as T inner join S12_COURSES as C on T.CRN=C.CRN where C.DEPT = '$department' and C.NUMBER = $course_number;";
+$query = "select * from S12_COURSE_TIMES as T inner join S12_COURSES as C on T.CRN=C.CRN where C.DEPT = '$department' and C.NUMBER = $course_number order by CRN;";
 $result = mysql_query($query);
 if (!$result){
     $return_array["success"]=false;
