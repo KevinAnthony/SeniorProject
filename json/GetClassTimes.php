@@ -27,7 +27,8 @@ if (!$connection){
 }
 
 mysql_select_db('ejw3_proj');
-$query = "select * from S12_COURSE_TIMES as T inner join S12_COURSES as C on T.CRN=C.CRN where C.DEPT = '$department' and C.NUMBER = $course_number order by CRN;";
+$query = "select * from S12_COURSE_TIMES as T inner join S12_COURSES as C on T.CRN=C.CRN";
+$qyery = $query." where C.DEPT = '$department' and C.NUMBER = $course_number order by T.CRN,T.DAY;";
 $result = mysql_query($query);
 if (!$result){
     $return_array["success"]=false;
@@ -37,7 +38,10 @@ if (!$result){
     $return_array['number_of_rows'] = 0;
     $data = array();
     while( $row = mysql_fetch_array($result,MYSQL_ASSOC) ){
-        $temp_array = Array("crn" => $row['CRN'],"day" => $row['DAY'],"start_time"=>$row["START_TIME"],"end_time"=>$row["END_TIME"],"room"=>$row["ROOM"],"instructor"=>$row["INSTRUCTOR"]);
+        $temp_array = Array("crn" => $row['CRN'],
+        "day" => $row['DAY'],"start_time"=>$row["START_TIME"],
+        "end_time"=>$row["END_TIME"],"room"=>$row["ROOM"],
+        "instructor"=>$row["INSTRUCTOR"]);
         array_push($data,$temp_array);
         $return_array['number_of_rows']++;
     }

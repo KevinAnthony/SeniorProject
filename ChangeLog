@@ -1,3 +1,8 @@
+2012-02-24  Kevin Anthony <kevin.s.anthony@gmail.com>
+
+	* ChangeLog, json/GetClassTimes.php: Added order by for query to make parsing
+	easier
+
 2012-02-23  Kevin Anthony <kevin.s.anthony@gmail.com>
 
 	* json/GetSubjects.php: Added new API Fucntion: GetSubjects.php  Takes
