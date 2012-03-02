@@ -19,7 +19,7 @@ if (!$connection){
 }
 
 mysql_select_db('ejw3_proj');
-$query = "select distinct C.NUMBER, D.NAME from S12_COURSES as C inner join COURSE_DESCRIPTIONS as D on D.DEPT = C.DEPT and D.NUMBER = C.NUMBER where C.DEPT = '$department'";
+$query = "select distinct C.NUMBER, D.NAME, D.DESCRIPTION from S12_COURSES as C inner join COURSE_DESCRIPTIONS as D on D.DEPT = C.DEPT and D.NUMBER = C.NUMBER where C.DEPT = '$department'";
 $result = mysql_query($query);
 if (!$result){
     $return_array["success"]=false;
@@ -29,7 +29,7 @@ if (!$result){
     $return_array['number_of_rows'] = 0;
     $data = array();
     while( $row = mysql_fetch_array($result,MYSQL_ASSOC) ){
-        $temp_array = Array("course_number" => $row['NUMBER'], "course_name" => $row['NAME']);
+        $temp_array = Array("course_number" => $row['NUMBER'], "course_name" => $row['NAME'], "description" => $row['DESCRIPTION']);
         array_push($data,$temp_array);
         $return_array['number_of_rows']++;
     }
