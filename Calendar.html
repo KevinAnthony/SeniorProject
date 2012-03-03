@@ -5,6 +5,14 @@
     <script src="kinetic-v3.6.4.js">
     </script>
     <script>
+    //to do
+    	//section listing
+    	//login, register
+    		//register div
+    	//displaying what is added
+    		//checking for collisions
+    		//info inside boxes / more info?
+    	
     	var stage;
     	var wInner;
     	var offset;
@@ -78,8 +86,106 @@
  
             calendarLayer.add(calBase);
             stage.add(calendarLayer);
+            loadSubjects();
             
         };
+      
+        var subjects = [];
+        var courses = [];
+        var sections = [];
+        var descriptions = [];
+        
+        function loadSections(value) {
+        	var sel = "./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value;
+        	
+        	if(sel != 1){
+        		var jsonGet = new XMLHttpRequest();
+				jsonGet.open("GET", sel);
+			    jsonGet.onreadystatechange = function () {
+					if(jsonGet.readyState == 4 && jsonGet.status == 200){
+					    text = JSON.parse(jsonGet.responseText);
+					    var i;
+						
+						if(value > -1)
+						    var list = "<tr><td colspan=\"5\" id=\"description\">" + descriptions[value] + "</td></tr>";
+
+						var days = "";
+						var times = "";
+						var rooms = ""; 
+						
+					    for(i=0; i < text.data.length; i++){
+					    	var section = text.data[i].crn;
+					    	if(text.data[i+1] != undefined)
+								var nextCrn = text.data[i+1].crn;
+	
+							var professor = text.data[i].instructor;
+							
+					    	days += text.data[i].day + "<br>";
+					    	rooms += text.data[i].room + "<br>";
+							times += text.data[i].start_time + " - " + text.data[i].end_time + "<br>";
+																			    	
+					    	if(i+1 == text.data.length || section != nextCrn){
+								list += "<tr><td>" + section + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + professor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\">Select</button></td></tr>";
+				        		sections[i] = section;
+				        		days = "";
+				        		times = "";
+				        		rooms = "";
+		            		}
+		            	}
+		            	if(list != undefined)
+							document.getElementById("sectionTable").innerHTML=list;
+					}
+				};
+				jsonGet.send();
+        	}
+        };
+        
+        function loadClasses() {
+        	var sel = "./json/GetCourseNumbers.php?department=" + document.getElementById("subjectSelector").value;
+        	
+        	if(sel != 1){
+        		var jsonGet = new XMLHttpRequest();
+				jsonGet.open("GET", sel);
+			    jsonGet.onreadystatechange = function () {
+					if(jsonGet.readyState == 4 && jsonGet.status == 200){
+					    text = JSON.parse(jsonGet.responseText);
+					    var i;
+					    var list = "<select id=\"classSelector\" onChange=\"loadSections(options[selectedIndex].id)\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Course</option>";
+					    for(i=0; i < text.data.length; i++){
+					    	var course = text.data[i].course_number;
+					    	var courseName = text.data[i].course_name;
+					    	descriptions[i] = text.data[i].description;
+			    			list += "<option id=\"" + i + "\" value=\"" + course + "\" class=\"opt\">" + course + " - " + courseName + "</option>";
+		            		subjects[i] = course;
+		            	}
+		            	list += "</select>";
+						document.getElementById("classColumn").innerHTML=list;
+					}
+				};
+				jsonGet.send();
+        	}
+        };
+        
+        function loadSubjects(){
+        	var jsonGet = new XMLHttpRequest();
+	    	jsonGet.open("GET","./json/GetSubjects.php");
+	        jsonGet.onreadystatechange = function () {
+				if(jsonGet.readyState == 4 && jsonGet.status == 200){
+			        text = JSON.parse(jsonGet.responseText);
+			        var i;
+			        var list = "<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Subject</option>";
+			        for(i=0; i < text.data.length; i++){
+			        	var dept = text.data[i].department;
+	        			list += "<option value=\"" + dept + "\" class=\"opt\">" + dept + "</option>";
+                		subjects[i] = dept;
+                	}
+                	list += "</select>";
+					document.getElementById("subjectColumn").innerHTML=list;
+		    	}
+		    };
+		    jsonGet.send();
+        };
+        
         
         //start_time, end_time in minutes
 		function addBlock(scheduleLayer, day, start_time, end_time){	//generates a rectangle of specified dimensions
@@ -192,6 +298,7 @@
         	var overlay = document.getElementById("overlay");
 			overlay.style.visibility = (overlay.style.visibility == "visible") ? "hidden" : "visible";
         };
+        
         //Block size to font size
         //text handling
         //wrap create block
@@ -211,10 +318,18 @@
 		      	</tr>
 	      	</table>
 	      	<br/><br/>
-      		<form>
-				Username:<br/><input type="text" name="username"/><br/>
-				Password:<br/><input type="password" name="password"/><br/>
+      		<form id='login' action='./json/Login.php' method='post' accept-charset='UTF-8'>
+				<!--fieldset-->
+      			<input type='hidden' name='submitted' id='submitted' value='1'/>
+				<label for="username">Username:</label><br/>
+					<input type="text" name="username" id="username" maxlength="32"/><br/>
+				<label for="password">Password:</label><br/>
+					<input type="password" name="password" id="password" maxlength="32"/><br/>
+				<input type="submit" name="Submit" value="Log In"/>
+				<!--/fieldset-->
 	      	</form>
+	      	<br/><br/><br/>
+	      	<a href="" onClick="" id="register">Click here to register.</a>
 		 </div>
 	</div>
 	
@@ -237,20 +352,15 @@
 			
 		   		<td id="classColumn">
 		   			<select id="classSelector" class="selector">
-						<option class="opt">Select Class</option>
+						<option class="opt">Select Course</option>
 					</select>
 		   		</td>
-		   		
-				<td id="sectionColumn">
-					<select id="sectionSelector" class="selector">
-						<option class="opt">Select Section</option>
-					</select>
-				</td>
-			
-				<td	id="buttonColumn">
-					<button onClick="" class="button">Add</button>
-				</td>
 			</tr>
+		</table>
+	</div>
+	
+	<div id="sectionDiv" align="center">
+		<table id="sectionTable" cellspacing="10">
 		</table>
 	</div>
 	
