@@ -20,7 +20,7 @@ div#savedSchedules {
 	position: relative; 
 	top: 50%;
 	width:350px;
-	height: 300px;
+	height: 500px;
 	margin: -150px auto;
 	background-color: #fff;
 	border:3px solid #000;
@@ -37,6 +37,23 @@ div#savedSchedules {
      text-align:center;
      z-index: 1000;
      background-image:url(Transparent.png);
+}
+
+table#sectionTable{
+	width:50%;
+	font-family:monospace;
+}
+
+table#sectionTable td#description{
+	text-align:justify;
+}
+
+table#sectionTable td#buttonCol{
+	text-align:right;
+}
+
+table#sectionTable td {
+	text-align:left;
 }
 
 .scheduleButton {
