@@ -4,7 +4,7 @@ var offset;
 var start_of_day;
 var scheduleLayer = new Kinetic.Layer();
 
-window.onload = function(){
+$(document).ready(function(){
 	start_of_day = 420;
 	wInner = window.innerWidth - 30;
     stage = new Kinetic.Stage("cont", wInner, 1100);
@@ -73,7 +73,9 @@ window.onload = function(){
     stage.add(calendarLayer);
     loadSubjects();
     
-};
+    $("#loginForm").onsubmit = "login()";
+    
+});
 
 
 
@@ -85,92 +87,85 @@ var descriptions = [];
 function loadSections(value) {
 	var sel = "./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value;
 	
-	if(sel != 1){
-		var jsonGet = new XMLHttpRequest();
-		jsonGet.open("GET", sel);
-	    jsonGet.onreadystatechange = function () {
-			if(jsonGet.readyState == 4 && jsonGet.status == 200){
-			    text = JSON.parse(jsonGet.responseText);
-			    var i;
-				
-				if(value > -1)
-				    var list = "<tr><td colspan=\"5\" id=\"description\">" + descriptions[value] + "</td></tr>";
+	var jsonGet = new XMLHttpRequest();
+	jsonGet.open("GET", sel);
+    jsonGet.onreadystatechange = function () {
+		if(jsonGet.readyState == 4 && jsonGet.status == 200){
+		    text = JSON.parse(jsonGet.responseText);
+		    var i;
+			
+			if(value > -1)
+			    var list = "<tr><td colspan=\"5\" id=\"description\">" + descriptions[value] + "</td></tr>";
 
-				var days = "";
-				var times = "";
-				var rooms = ""; 
-				
-			    for(i=0; i < text.data.length; i++){
-			    	var section = text.data[i].crn;
-			    	if(text.data[i+1] != undefined)
-						var nextCrn = text.data[i+1].crn;
+			var days = "";
+			var times = "";
+			var rooms = ""; 
+			
+		    for(i=0; i < text.data.length; i++){
+		    	var section = text.data[i].crn;
+		    	if(text.data[i+1] != undefined)
+					var nextCrn = text.data[i+1].crn;
 
-					var professor = text.data[i].instructor;
-					
-			    	days += text.data[i].day + "<br>";
-			    	rooms += text.data[i].room + "<br>";
-					times += text.data[i].start_time + " - " + text.data[i].end_time + "<br>";
-																	    	
-			    	if(i+1 == text.data.length || section != nextCrn){
-						list += "<tr><td>" + section + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + professor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\">Select</button></td></tr>";
-		        		sections[i] = section;
-		        		days = "";
-		        		times = "";
-		        		rooms = "";
-            		}
-            	}
-            	if(list != undefined)
-					document.getElementById("sectionTable").innerHTML=list;
-			}
-		};
-		jsonGet.send();
-	}
+				var professor = text.data[i].instructor;
+				
+		    	days += text.data[i].day + "<br>";
+		    	rooms += text.data[i].room + "<br>";
+				times += text.data[i].start_time + " - " + text.data[i].end_time + "<br>";
+																    	
+		    	if(i+1 == text.data.length || section != nextCrn){
+					list += "<tr><td>" + section + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + professor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\">Select</button></td></tr>";
+	        		sections[i] = section;
+	        		days = "";
+	        		times = "";
+	        		rooms = "";
+        		}
+        	}
+        	if(list != undefined)
+				document.getElementById("sectionTable").innerHTML=list;
+		}
+	};
+	jsonGet.send();
+	
 };
 
 function loadClasses() {
-	var sel = "./json/GetCourseNumbers.php?department=" + document.getElementById("subjectSelector").value;
+	var sel = $("#subjectSelector").val();
 	
 	if(sel != 1){
-		var jsonGet = new XMLHttpRequest();
-		jsonGet.open("GET", sel);
-	    jsonGet.onreadystatechange = function () {
-			if(jsonGet.readyState == 4 && jsonGet.status == 200){
-			    text = JSON.parse(jsonGet.responseText);
-			    var i;
-			    var list = "<select id=\"classSelector\" onChange=\"loadSections(options[selectedIndex].id)\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Course</option>";
-			    for(i=0; i < text.data.length; i++){
-			    	var course = text.data[i].course_number;
-			    	var courseName = text.data[i].course_name;
-			    	descriptions[i] = text.data[i].description;
-	    			list += "<option id=\"" + i + "\" value=\"" + course + "\" class=\"opt\">" + course + " - " + courseName + "</option>";
-            		subjects[i] = course;
-            	}
-            	list += "</select>";
-				document.getElementById("classColumn").innerHTML=list;
-			}
-		};
-		jsonGet.send();
+		$.getJSON("./json/GetCourseNumbers.php?department=" + sel, function (data) {
+		    var i;
+		    var list = [];
+		    
+		    list.push("<select id=\"classSelector\" onChange=\"loadSections(options[selectedIndex].id)\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Course</option>");
+		    
+		    for(i=0; i < data.data.length; i++){
+		    	var course = data.data[i].course_number;
+		    	var courseName = data.data[i].course_name;
+		    	descriptions[i] = data.data[i].description;
+    			list.push("<option id=\"" + i + "\" value=\"" + course + "\" class=\"opt\">" + course + " - " + courseName + "</option>");
+        	}
+		    
+			list.push("</select>");
+			$('#classColumn').html(list.join(''));
+		});
 	}
 };
 
 function loadSubjects(){
-	var jsonGet = new XMLHttpRequest();
-	jsonGet.open("GET","./json/GetSubjects.php");
-    jsonGet.onreadystatechange = function () {
-		if(jsonGet.readyState == 4 && jsonGet.status == 200){
-	        text = JSON.parse(jsonGet.responseText);
-	        var i;
-	        var list = "<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Subject</option>";
-	        for(i=0; i < text.data.length; i++){
-	        	var dept = text.data[i].department;
-    			list += "<option value=\"" + dept + "\" class=\"opt\">" + dept + "</option>";
-        		subjects[i] = dept;
-        	}
-        	list += "</select>";
-			document.getElementById("subjectColumn").innerHTML=list;
-    	}
-    };
-    jsonGet.send();
+	$.getJSON("./json/GetSubjects.php", function (data) {
+        var i;
+        var list = [];
+        
+        list.push("<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Subject</option>");
+        
+		$.each(data.data, function(key, val) {
+			list.push("<option value=\"" + val.department + "\" class=\"opt\">" + val.department + "</option>");
+    		subjects[i] = val.department;
+    	});
+    	
+    	list.push("</select>");
+		$('#subjectColumn').html(list.join(''));
+	});
 };
 
 
@@ -283,38 +278,48 @@ function sendEvent(){
 };
 
 function loginBoxToggle(){
-	var overlay = document.getElementById("overlay");
-	overlay.style.visibility = (overlay.style.visibility == "visible") ? "hidden" : "visible";
+	var blah = $("#slider").css('left');
+	var toLeft;
+	if(blah.indexOf("px") == -1){
+			toLeft = $("#slider").css('left') == "35%" ?
+			"100%" :
+			"35%";
+		} else {
+			toLeft = parseInt(100 * parseFloat($("#slider").css('left')) / parseFloat($("#slider").parent().css('width'))) < 40 ?
+			"100%" :
+			"35%";
+		}
+	$("#slider").animate({
+		left : toLeft
+	});
 };
 
 function login() {
-	var form = document.getElementById("loginForm");
-	var username = form.username.value;
-	var password = form.password.value;
-	
-	this.http.open("POST", this.action, false, username, password);
-	this.http.send(""); 
-	if (http.status == 200) { 
-		//document.location = this.action; 
-	} else { 
-		alert("Incorrect username and/or password."); 
-	} 
-	
-	return false;
-	/*
-	var jsonGet = new XMLHttpRequest();
-	jsonGet.open("POST","./json/Login.php?username=" + username + "&password=" + password);
-    jsonGet.onreadystatechange = function () {
-		if(jsonGet.readyState == 4 && jsonGet.status == 200){
-	        text = JSON.parse(jsonGet.responseText);
-	        
-	        console.log(text.success);
-    	}
-    };
-    jsonGet.send();//*/
+	var username = $("#username").val();
+	var password = $("#password").val();
+	$.ajax({
+		type: "POST",
+		url: "./json/Login.php",
+		data: {"password":password, "username":username},
+		success: function(data){
+ 			$("#loginForm").html("Success!");
+ 			console.log(data);  
+		},
+		error: function(){
+    		console.log(data);
+  		}
 
+	});
 };
+	
+//logout and register functions -> ajax
+//classes stored as array of objects
+//displayed classes stored as objects, linked to displayed blocks
+//select buttons display classes
+//user controlled events on menus, building them
+//saving events
+//hiding class listings
+//times as times (not pixels)
 
-//Block size to font size
-//text handling
-//wrap create block
+//login works on any credentials?
+//saved schedules?

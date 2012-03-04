@@ -2,8 +2,8 @@
 <head>
 	<meta http-equiv="X-UA-Compatible" value="IE=9">
 	<LINK href="Cal.css" rel="stylesheet" type="text/css">
-    <script src="kinetic-v3.6.4.js">
-    </script>
+    <script src="kinetic-v3.6.4.js"></script>
+    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>  
     <script src="Cal.js"></script>
     <script>
     //to do
@@ -20,47 +20,49 @@
 	<!-- In reality, this will have a topic selection (eg. CS, MATH) -->
 	<!-- This will load the courses, you can then add a course to your schedule -->
 	<!-- There will also be a custom field to add custom events -->
-	<div id="overlay">
-		 <div>
-		 	<table align="right">
-		      	<tr>
-		      		<td>
-		      			<a href="#" onClick="loginBoxToggle()" id="closeLogin">Close</a>
-		      		<dt>
-		      	</tr>
-	      	</table>
-	      	<br/><br/>
-      		<form id="loginForm" action="./json/Login.php" onsubmit="login()" method="post" accept-charset='UTF-8'>
-				<!--fieldset>
-      			<input type='hidden' name='submitted' id='submitted' value='1'/-->
-				<label for="username">Username:</label><br/>
-					<input type="text" name="username" id="username" maxlength="32"/><br/>
-				<label for="password">Password:</label><br/>
-					<input type="password" name="password" id="password" maxlength="32"/><br/>
-				<input type="submit" name="Submit" value="login"/>
-				<!--/fieldset-->
-	      	</form>
-	      	<br />
-	      	<form id='logout' action='./json/Logout.php' method='post' accept-charset='UTF-8'>
-				<!--fieldset-->
-				<input type="submit" name="Submit" value="logout"/>
-				<!--/fieldset-->
-	      	</form>
-	      	<br/>
-	      	<form id='register' action='./json/Register.php' method='post' accept-charset='UTF-8'>
-				<!--fieldset-->
-      			<input type='hidden' name='submitted' id='submitted' value='1'/>
-				<label for="username">Username:</label><br/>
-					<input type="text" name="username" id="username" maxlength="32"/><br/>
-				<label for="password">Password:</label><br/>
-					<input type="password" name="password" id="password" maxlength="32"/><br/>
-				<input type="submit" name="Submit" value="register"/>
-				<!--/fieldset-->
-	      	</form><!--br/><br/>
-	      	<a href="" onClick="" id="register">Click here to register.</a-->
-		 </div>
+	<div id="slideParent">
+		<div id="slider">
+			 <div>
+			 	<table align="right">
+				  	<tr>
+				  		<td>
+				  			<a href="#" onClick="loginBoxToggle()" id="closeLogin">Close</a>
+				  		<dt>
+				  	</tr>
+			  	</table>
+			  	<br/><br/>
+		  		<form id="loginForm" action="javascript:login()" method="post" accept-charset='UTF-8'>
+					<!--fieldset>
+		  			<input type='hidden' name='submitted' id='submitted' value='1'/-->
+					<label for="username">Username:</label><br/>
+						<input type="text" name="username" id="username" maxlength="32"/><br/>
+					<label for="password">Password:</label><br/>
+						<input type="password" name="password" id="password" maxlength="32"/><br/>
+					<input type="submit" name="Submit" value="login"/>
+					<!--/fieldset-->
+			  	</form>
+			</div>
+			<div>
+			  	<form id='logout' action='./json/Logout.php' method='post' accept-charset='UTF-8'>
+					<!--fieldset-->
+					<input type="submit" name="Submit" value="logout"/>
+					<!--/fieldset-->
+			  	</form>
+			  	<br/>
+			  	<form id='register' action='./json/Register.php' method='post' accept-charset='UTF-8'>
+					<!--fieldset-->
+		  			<input type='hidden' name='submitted' id='submitted' value='1'/>
+					<label for="username">Username:</label><br/>
+						<input type="text" name="username" id="username" maxlength="32"/><br/>
+					<label for="password">Password:</label><br/>
+						<input type="password" name="password" id="password" maxlength="32"/><br/>
+					<input type="submit" name="Submit" value="register"/>
+					<!--/fieldset-->
+			  	</form><!--br/><br/>
+			  	<a href="" onClick="" id="register">Click here to register.</a-->
+			 </div>
+		</div>
 	</div>
-	
 	<div id="selectors">
 		<table align="right">
 			<tr>
