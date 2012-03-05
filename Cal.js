@@ -302,7 +302,25 @@ function login() {
 		url: "./json/Login.php",
 		data: {"password":password, "username":username},
 		success: function(data){
- 			$("#loginForm").html("Success!");
+ 			//$("#loginForm").html("Success!");
+ 			console.log(data);  
+		},
+		error: function(){
+    		console.log(data);
+  		}
+
+	});
+};
+
+function register() {
+	var username = $("#username").val();
+	var password = $("#password").val();
+	$.ajax({
+		type: "POST",
+		url: "./json/Register.php",
+		data: {"password":password, "username":username},
+		success: function(data){
+ 			//$("#loginForm").html("Success!");
  			console.log(data);  
 		},
 		error: function(){
@@ -312,6 +330,20 @@ function login() {
 	});
 };
 	
+	
+function logout() {
+	$.ajax({
+		type: "POST",
+		url: "./json/Logout.php",
+		success: function(data){
+ 			console.log(data);  
+		},
+		error: function(){
+    		console.log(data);
+  		}
+
+	});
+};
 //logout and register functions -> ajax
 //classes stored as array of objects
 //displayed classes stored as objects, linked to displayed blocks
