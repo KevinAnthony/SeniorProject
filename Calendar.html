@@ -23,14 +23,12 @@
 	<div id="slideParent">
 		<div id="slider">
 			 <div>
-			 	<table align="right">
-				  	<tr>
-				  		<td>
-				  			<a href="#" onClick="loginBoxToggle()" id="closeLogin">Close</a>
-				  		<dt>
-				  	</tr>
-			  	</table>
-			  	<br/><br/>
+				<form id='logout' action="javascript:logout()" method='post' accept-charset='UTF-8'>
+					<!--fieldset-->
+					<input type="submit" name="Submit" value="logout"/>
+					<!--/fieldset-->
+			  	</form>
+			  	<br />
 		  		<form id="loginForm" action="javascript:login()" method="post" accept-charset='UTF-8'>
 					<!--fieldset>
 		  			<input type='hidden' name='submitted' id='submitted' value='1'/-->
@@ -43,12 +41,14 @@
 			  	</form>
 			</div>
 			<div>
-			  	<form id='logout' action="javascript:logout()" method='post' accept-charset='UTF-8'>
-					<!--fieldset-->
-					<input type="submit" name="Submit" value="logout"/>
-					<!--/fieldset-->
-			  	</form>
-			  	<br/>
+				<table align="right">
+				  	<tr>
+				  		<td>
+				  			<a href="#" onClick="loginBoxToggle()" id="closeLogin">Close</a>
+				  		<dt>
+				  	</tr>
+			  	</table>
+			  	<br/><br/>
 			  	<form id='register' action="javascript:register()" method='post' accept-charset='UTF-8'>
 					<!--fieldset-->
 		  			<input type='hidden' name='submitted' id='submitted' value='1'/>
@@ -63,6 +63,7 @@
 			 </div>
 		</div>
 	</div>
+	
 	<div id="selectors">
 		<table align="right">
 			<tr>
@@ -90,6 +91,7 @@
 	</div>
 	
 	<div id="sectionDiv" align="center">
+		<a id="hideSections" href="#" onclick="toggleSections()">Hide</a><br />
 		<table id="sectionTable" cellspacing="10">
 		</table>
 	</div>

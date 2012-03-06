@@ -215,8 +215,10 @@ function addBlock(scheduleLayer, day, start_time, end_time){	//generates a recta
 
 
 function pixelsToTime(pixels){
-	var hours = parseInt(pixels / 60);
-	var minutes = parseInt(pixels % 60);
+	var hours = parseInt(pixels / 60).toString();
+	var minutes = parseInt(pixels % 60).toString();
+	hours = (hours.length == 1 ? "0" + hours : hours);
+	minutes += (minutes.length == 1 ? "0" : "");
 	var time = hours + ":" + minutes;
 	
 	return time;
@@ -307,6 +309,18 @@ function sendEvent(){
     jsonGet.send();
 };
 
+function toggleSections(){
+	var isVis = $("#sectionTable").css("display");
+	
+	if(isVis == "block"){
+		$("#sectionTable").css("display", "none");
+		$("#hideSections").html("Show");
+	} if(isVis == "none"){
+		$("#sectionTable").css("display", "block");
+		$("#hideSections").html("Hide");
+	}
+}
+
 function loginBoxToggle(){
 	var blah = $("#slider").css('left');
 	var toLeft;
@@ -375,13 +389,20 @@ function logout() {
 	});
 };
 //logout and register functions -> ajax
-//classes stored as array of objects
-//displayed classes stored as objects, linked to displayed blocks
+//classes stored as object of objects
 //select buttons display classes
-//user controlled events on menus, building them
-//saving events
 //hiding class listings
 //times as times (not pixels)
+//============================
+//text on added blocks
+//displayed classes stored as objects, linked to displayed blocks (highlight same crn? mouseovers?)
+//time collision handling
+
+//user controlled events on menus, building them
+//saving events
+
+//chrome bug on drop down lists (ugly coloring)
+
 
 //login works on any credentials?
 //saved schedules?
