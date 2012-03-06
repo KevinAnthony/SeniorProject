@@ -16,7 +16,7 @@ div#savedSchedules {
 
 #slideParent {
 	pointer-events:none;
-	width:100%;
+	width:99%;
 	position:absolute;
 	height:300px;
 	overflow:hidden;
@@ -37,7 +37,7 @@ div#savedSchedules {
 #slider {
      visibility: visible;
      position: absolute;
-     left: 35%;
+     left: 100%;
      top: 0px;
      width:66%;
      height:300px;

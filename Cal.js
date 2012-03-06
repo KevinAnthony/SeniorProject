@@ -80,13 +80,14 @@ $(document).ready(function(){
 
 
 var subjects = [];
-var courses = [];
+var courses = {};
 var sections = [];
 var descriptions = [];
+var schedule = [];
 
 function loadSections(value) {
 	var sel = "./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value;
-	
+	courses = {};								//IF THINGS DON'T WORK CHECK THIS LINE
 	var jsonGet = new XMLHttpRequest();
 	jsonGet.open("GET", sel);
     jsonGet.onreadystatechange = function () {
@@ -100,24 +101,34 @@ function loadSections(value) {
 			var days = "";
 			var times = "";
 			var rooms = ""; 
+			var classy = {"crn":undefined, "cname":undefined, "prof":undefined, "days":[], "stimes":[], "etimes":[], "rooms":[]};
 			
 		    for(i=0; i < text.data.length; i++){
-		    	var section = text.data[i].crn;
+		    	classy.crn = text.data[i].crn;
 		    	if(text.data[i+1] != undefined)
 					var nextCrn = text.data[i+1].crn;
 
-				var professor = text.data[i].instructor;
+				classy.prof = text.data[i].instructor;
 				
+				classy.days.push(text.data[i].day);
 		    	days += text.data[i].day + "<br>";
+		    	
+		    	classy.rooms.push(text.data[i].room);
 		    	rooms += text.data[i].room + "<br>";
-				times += text.data[i].start_time + " - " + text.data[i].end_time + "<br>";
+		    	
+		    	classy.stimes.push(text.data[i].start_time);
+		    	classy.etimes.push(text.data[i].end_time);
+				times += pixelsToTime(text.data[i].start_time) + " - " + pixelsToTime(text.data[i].end_time) + "<br>";
 																    	
-		    	if(i+1 == text.data.length || section != nextCrn){
-					list += "<tr><td>" + section + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + professor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\">Select</button></td></tr>";
-	        		sections[i] = section;
+		    	if(i+1 == text.data.length || classy.crn != nextCrn){
+					list += "<tr><td>" + classy.crn + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.prof + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule("+ classy.crn +")\">Select</button></td></tr>";
+	        		sections[i] = classy.crn;
 	        		days = "";
 	        		times = "";
 	        		rooms = "";
+					
+					courses[classy.crn] = classy;	        		
+	        		var classy = {"crn":undefined, "cname":undefined, "prof":undefined, "days":[], "stimes":[], "etimes":[], "rooms":[]};
         		}
         	}
         	if(list != undefined)
@@ -125,6 +136,16 @@ function loadSections(value) {
 		}
 	};
 	jsonGet.send();
+	
+};
+
+function addToSchedule(crn){
+	var toAdd = courses[crn];
+	var i;
+	
+	for(i=0; i < toAdd.days.length; i++){
+		addBlock(scheduleLayer, toAdd.days[i], toAdd.stimes[i], toAdd.etimes[i]);
+	}
 	
 };
 
@@ -172,15 +193,15 @@ function loadSubjects(){
 //start_time, end_time in minutes
 function addBlock(scheduleLayer, day, start_time, end_time){	//generates a rectangle of specified dimensions
 	var block = new Kinetic.Shape(function(){
-		var tX = DayToPixels(day);
-		var tY = TimeToPixels(start_time);
-		var w = DayToPixels(day+1) - tX;
-		var h = TimeToPixels(end_time) - tY;
+		var tX = DayToPixels(parseInt(day));
+		var tY = TimeToPixels(parseInt(start_time));
+		var w = DayToPixels(parseInt(day)+1) - tX;
+		var h = TimeToPixels(parseInt(end_time)) - tY;
 		var context = this.getContext();
         
 		context.rect(tX, tY, w, h);
 		context.fillStyle = "#c9c9c9";//"#C9C9C7";
-		context.fill();4	
+		context.fill();	
 		context.lineWidth = 2;
 		context.strokeStyle = "#000000";
 		
@@ -193,6 +214,14 @@ function addBlock(scheduleLayer, day, start_time, end_time){	//generates a recta
 };
 
 
+function pixelsToTime(pixels){
+	var hours = parseInt(pixels / 60);
+	var minutes = parseInt(pixels % 60);
+	var time = hours + ":" + minutes;
+	
+	return time;
+};
+
 function TimeToPixels(time){						//adjusts the time by the offset and the start time of calendar
 	var position;
 	position = time - (start_of_day - offset);
@@ -203,7 +232,8 @@ function TimeToPixels(time){						//adjusts the time by the offset and the start
 
 function DayToPixels(day){							//returns the pixel position of a given day
 	var pixals = 0;
-	pixals += (wInner/14) + (day * (wInner/7));
+	var dayInt = parseInt(day) - 1;
+	pixals += (wInner/14) + (dayInt * (wInner/7));
 	return Math.floor(pixals);
 };
 
