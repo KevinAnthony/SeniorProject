@@ -38,20 +38,42 @@ if(isset($_COOKIE['SID'])){
                 }
                 $query = "select * from SCHEDULE_COURSE_VIEW where SCHEDULE_ID = $id";
                 $result_class = mysql_query($query);
-                while( $row_class = mysql_fetch_array($result_class,MYSQL_ASSOC) ) {
+                $row_class = mysql_fetch_array($result_class,MYSQL_ASSOC);
+                while( $row_class ) {
+                    $i=0;
                     $temp = Array("schedule_name" =>$row_class["SCHEDULE_NAME"],"CRN" => $row_class["CRN"],
                     "department" => $row_class["DEPT"],"number" => $row_class["NUMBER"],"section" => $row_class["SECTION"]
-                    ,"credits" => $row_class["CREDITS"],"instructor" => $row_class["INSTRUCTOR"],"day" => $row_class["DAY"]
-                    ,"start_time" => $row_class["START_TIME"],"end_time" => $row_class["END_TIME"]
-                    ,"room" => $row_class["ROOM"],"course_name" => $row_class["COURSE_NAME"]
-                    ,"course_description" => $row_class["DESCRIPTION"],);
+                    ,"credits" => $row_class["CREDITS"],"instructor" => $row_class["INSTRUCTOR"],
+                    "course_name" => $row_class["COURSE_NAME"],"course_description" => $row_class["DESCRIPTION"]);
+                    $day = Array();
+                    $start_time = Array();
+                    $end_time = Array();
+                    $room = Array();
+                    $day[$i] = $row_class["DAY"];
+                    $start_time[$i] = $row_class["START_TIME"];
+                    $end_time[$i] = $row_class["END_TIME"];
+                    $room[$i] = $row_class["ROOM"];
+                    $i++;
+                    $row_class = mysql_fetch_array($result_class,MYSQL_ASSOC);
+                    while (($row_class) && $row_class["CRN"] == $temp["CRN"]){
+                        $day[$i] = $row_class["DAY"];
+                        $start_time[$i] = $row_class["START_TIME"];
+                        $end_time[$i] = $row_class["END_TIME"];
+                        $room[$i] = $row_class["ROOM"];
+                        $i++;
+                        $row_class = mysql_fetch_array($result_class,MYSQL_ASSOC);
+                    }
+                    $temp['day'] = $day;
+                    $temp['start_time'] = $start_time;
+                    $temp['end_time'] = $end_time;
+                    $temp['room'] = $room;
                     array_push($class_array,$temp);
                 }
                 $single_schedual['events'] = $event_array;
                 $single_schedual['courses'] = $class_array;
-                $tt = Array();
-                array_push($tt,$single_schedual);
-                array_push($scheduals,$tt);
+                $schedual_group = Array();
+                array_push($schedual_group,$single_schedual);
+                array_push($scheduals,$schedual_group);
                 $return_array['number_of_scheduals']++;
                 mysql_free_result($result_event);
                 mysql_free_result($result_class);
