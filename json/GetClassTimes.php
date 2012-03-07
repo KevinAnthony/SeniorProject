@@ -40,27 +40,25 @@ if (!$result){
     $row = mysql_fetch_array($result,MYSQL_ASSOC);
     while( $row ){
         $i = 0;
-        $temp_array = Array("CRN" => $row['CRN'],
-        "day" => $row['DAY'],"start_time"=>$row["START_TIME"],
-        "end_time"=>$row["END_TIME"],"room"=>$row["ROOM"],
+        $temp_array = Array("CRN" => $row['CRN'], 
         "instructor"=>$row["INSTRUCTOR"]);
         $day = Array();
         $start_time = Array();
         $end_time = Array();
         $room = Array();
-        $day[$i] = $row["DAY"];
-        $start_time[$i] = $row["START_TIME"];
-        $end_time[$i] = $row["END_TIME"];
+        $day[$i] = intval($row["DAY"]);
+        $start_time[$i] = intval($row["START_TIME"]);
+        $end_time[$i] = intval($row["END_TIME"]);
         $room[$i] = $row["ROOM"];
         $i++;
-        $row = mysql_fetch_array($result_class,MYSQL_ASSOC);
+        $row = mysql_fetch_array($result,MYSQL_ASSOC);
         while (($row) && $row["CRN"] == $temp_array["CRN"]){
             $day[$i] = $row["DAY"];
             $start_time[$i] = $row["START_TIME"];
             $end_time[$i] = $row["END_TIME"];
             $room[$i] = $row["ROOM"];
             $i++;
-            $row = mysql_fetch_array($result_class,MYSQL_ASSOC);
+            $row = mysql_fetch_array($result,MYSQL_ASSOC);
         }
         $temp_array['day'] = $day;
         $temp_array['start_time'] = $start_time;
