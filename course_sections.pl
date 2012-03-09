@@ -2,9 +2,8 @@
 
 use Switch;
 	
-$debug="query";
-	
-open data, "./Math111.aspx" or die $!;
+$file="$ARGV[0]";
+open data, $file or die $!;
 
 $_=<data> while($_ !~ /ctl10_lblCourse/);
 chomp;
@@ -31,7 +30,7 @@ print("Description: $description\n") if ($debug =~ /all/ || $debug =~ /vars/);
 			
 $query = "INSERT INTO COURSE_DESCRIPTIONS VALUES (\"".$name."\",\"".$dept."\",\"".$num."\",\"".$description."\");";
 print("$query\n") if ($debug =~ /all/ || $debug =~ /query/);
-system("echo \'$query\' > courses.txt");   ## change to >> when ready to use this script for all classes
+system("echo \'$query\' >> courses.txt"); 
  			
 while($_=<data>){
 	# section num
@@ -146,6 +145,4 @@ while($_=<data>){
 	}
 }	
 
-$dbh->disconnect();
-close data;
 	
