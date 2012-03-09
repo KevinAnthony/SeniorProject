@@ -2,220 +2,66 @@
 <head>
 	<meta http-equiv="X-UA-Compatible" value="IE=9">
 	<LINK href="Cal.css" rel="stylesheet" type="text/css">
-    <script src="kinetic-v3.6.4.js">
-    </script>
+    <script src="kinetic-v3.6.4.js"></script>
+    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>  
+    <script src="Cal.js"></script>
     <script>
-    	var stage;
-    	var wInner;
-    	var offset;
-    	var start_of_day;
-    	var scheduleLayer = new Kinetic.Layer();
-
-    	window.onload = function(){
-    		start_of_day = 420;
-        	wInner = window.innerWidth - 30;
-            stage = new Kinetic.Stage("cont", wInner, 1100);
-            var calendarLayer = new Kinetic.Layer();
-            
-            var divs = 7;	
-            offset = 40;
-            var topX = wInner / (divs * 2) + 0.5;			//column size / 2 padding on each side
-			var topY = offset + 0.5;	
-			var width = wInner - 2*topX;
-			var height = 900;										//this maps 1 pixel : 1 minute, nifty
-		 	var divs = height / 30;
-		 	var i = 0;
-            
-            var calBase = new Kinetic.Shape(function(){
-            	var context = this.getContext();
-                context.beginPath();
-				context.rect(topX, topY, width, height);
-				context.fillStyle = "#ACC8FF";//"#C9C9C7";
-				context.fill();
-				context.lineWidth = 3;
-				context.strokeStyle = "#4B4B4B";
-				context.stroke(); //draw
-				
-				for(i=1; i<(divs-1); i++){ 									//vertical lines
-					//var pos = topX + (i * width/(divs-1)) + 0.5;
-					var pos = DayToPixels(i);
-					context.moveTo(pos, offset);
-					context.lineTo(pos, height + offset);
-					context.lineWidth = 2;
-					context.strokeStyle = "#7E7E7C"
-					context.stroke();
-				}
-				
-				for(i=0; i<=divs; i++){										//horizontal lines (ea. 30m), time
-					var pos = topY + (i * height / divs);
-					context.moveTo(topX, pos);
-					context.lineTo(topX+width, pos);
-					context.lineWidth = 1;
-					context.strokeStyle = "#7E7E7C";
-					context.stroke();
-					
-					if(!(i % 2)){											//time, skips the :30s
-						var x = topX - 10;
-						var time = pos - (offset + 0.5) + start_of_day;		//since pixels map to minutes, 0 time (7:00, 480m) is at the offset
-					 	context.fillStyle = "#000000"
-						context.font = "11pt Courier";
-						context.textAlign = "right"
-						var h = Math.floor(time/60);
-						
-						if(wInner > 1100){								//if window is too small, switch to condensed time (4p, 5p...)
-							var m = ((time%60 != 0) ? (":"+ time % 60) : ":00");
-							m = m + ((h > 11) ? " pm" : " am" )				//decide am or pm
-						} else {
-							var m = ((h > 11) ? "p" : "a" )
-						}													//problem marking ea 30m, in condensed mode (4p, 4p)
-						
-						(h > 12) ? (h = h % 12) : 0;						//Comment out for military (24h) time. Fuck yea, military time.
-
-						context.fillText(h + m, x, pos + 4);
-					}
-				}
-            });
- 
-            calendarLayer.add(calBase);
-            stage.add(calendarLayer);
-            
-        };
-        
-        //start_time, end_time in minutes
-		function addBlock(scheduleLayer, day, start_time, end_time){	//generates a rectangle of specified dimensions
- 			var block = new Kinetic.Shape(function(){
- 				var tX = DayToPixels(day);
- 				var tY = TimeToPixels(start_time);
- 				var w = DayToPixels(day+1) - tX;
- 				var h = TimeToPixels(end_time) - tY;
- 				var context = this.getContext();
-	            
-				context.rect(tX, tY, w, h);
-				context.fillStyle = "#c9c9c9";//"#C9C9C7";
-				context.fill();4	
-				context.lineWidth = 2;
-				context.strokeStyle = "#000000";
-				
-				context.stroke(); //draw
- 			});
-
- 			scheduleLayer.add(block);
- 			stage.add(scheduleLayer);
- 			return block;
- 		};
- 
-        
-        function TimeToPixels(time){						//adjusts the time by the offset and the start time of calendar
-			var position;
-        	position = time - (start_of_day - offset);
-			
-			//console.write(pixies + '\n');
-			return position;
-        };
-        
-        function DayToPixels(day){							//returns the pixel position of a given day
-        	var pixals = 0;
-        	pixals += (wInner/14) + (day * (wInner/7));
-        	return Math.floor(pixals);
-        };
-        
-        var toggle = 0;
-        var tgle = 1;
-        var text = {};
-        function populateList(){							//retrieves list from the server, adds it to the option box
-        	if(toggle == 0){
-		    	var jsonGet = new XMLHttpRequest();
-		    	jsonGet.open("GET","./json/GetAllEvents.php");
-		        jsonGet.onreadystatechange = function () {
-		        	//console.log(jsonGet.readyState);
-		        	//console.log(jsonGet.status);
-					if(jsonGet.readyState == 4 && jsonGet.status == 200){
-				        text = JSON.parse(jsonGet.responseText);
-				        var i;
-				        var list = "<select id=\"sbox\" class=\"selector\">";
-				        for(i=0; i < text.data.length; i++){
-				        	//text.data[i].start_time = parseInt(text.data[i].start_time);
-				        	//text.data[i].end_time = parseInt(text.data[i].end_time);
-				        	//text.data[i].day = parseInt(text.data[i].day);
-				        	var time = text.data[i].start_time / 60;
-				        	time = Math.floor(time);
-				        	var mins = text.data[i].start_time % 60;
-				        	(mins < 10) ? mins = ("0" + mins) : null;
-		        			list += "<option value=\""+i+"\" class=\"opt\">" + text.data[i].day + " - " + time + ":" + mins + "</option>";
-	                		blocks[i] = null;
-	                	}
-	                	list += "</select>";
-						document.getElementById("sdiv").innerHTML=list;
-			    	}
-			    };
-			    jsonGet.send();
-			    toggle = 0;
-			} else {}
-
-		};
-		
-		//{"success":true,"number_of_rows":2,"0":{"id":"7","event_name":null,"day":"3","start_time":"510","end_time":"617"},"1":{"id":"8","event_name":null,"day":"3","start_time":"510","end_time":"617"}}
-		/*
-			if(text.success)
-		*/
-		
-		var blocks = [];
-		function displaySelected(){								//generates a block for the selected option
-			var sel = document.getElementById("sbox").value;
-			var start = ((text.data[sel].start_time < start_of_day) ? 420 : text.data[sel].start_time);
-			var end = ((text.data[sel].end_time > (900 + start_of_day)) ? (900 + start_of_day) : text.data[sel].end_time);
-			if(end > start_of_day && start < (900 + start_of_day) && blocks[sel] == null){
-				blocks[sel] = addBlock(scheduleLayer, text.data[sel].day, start, end); 
-			}	
-		};
-			
-		function removeSelected(){								//removes the block of the selected option
-			var sel = document.getElementById("sbox").value;
-			if(blocks[sel] != null){
-				scheduleLayer.remove(blocks[sel]);
-				stage.add(scheduleLayer);
-				blocks[sel] = null;
-			}
-		};
-		
-
-        function sendEvent(){
-        	var startTime = document.getElementById("sbox1").value;
-        	var endTime = document.getElementById("sbox2").value;
-        	var day = document.getElementById("sbox3").value;
-        	var jsonGet = new XMLHttpRequest();
-		    jsonGet.open("POST","./json/SaveEvent.php?day=" + day + "&start_time=" + startTime + "&end_time=" + endTime);
-		    jsonGet.send();
-        };
-        
-        function loginBoxToggle(){
-        	var overlay = document.getElementById("overlay");
-			overlay.style.visibility = (overlay.style.visibility == "visible") ? "hidden" : "visible";
-        };
-        //Block size to font size
-        //text handling
-        //wrap create block
+    //to do
+    	//section listing
+    	//login, register
+    		//register div
+    	//displaying what is added
+    		//checking for collisions
+    		//info inside boxes / more info?
+    	
     </script>
 </head>
 <body>
 	<!-- In reality, this will have a topic selection (eg. CS, MATH) -->
 	<!-- This will load the courses, you can then add a course to your schedule -->
 	<!-- There will also be a custom field to add custom events -->
-	<div id="overlay">
-		 <div>
-		 	<table align="right">
-		      	<tr>
-		      		<td>
-		      			<a href="#" onClick="loginBoxToggle()" id="closeLogin">Close</a>
-		      		<dt>
-		      	</tr>
-	      	</table>
-	      	<br/><br/>
-      		<form>
-				Username:<br/><input type="text" name="username"/><br/>
-				Password:<br/><input type="password" name="password"/><br/>
-	      	</form>
-		 </div>
+	<div id="slideParent">
+		<div id="slider">
+			 <div>
+				<form id='logout' action="javascript:logout()" method='post' accept-charset='UTF-8'>
+					<!--fieldset-->
+					<input type="submit" name="Submit" value="logout"/>
+					<!--/fieldset-->
+			  	</form>
+			  	<br />
+		  		<form id="loginForm" action="javascript:login()" method="post" accept-charset='UTF-8'>
+					<!--fieldset>
+		  			<input type='hidden' name='submitted' id='submitted' value='1'/-->
+					<label for="username">Username:</label><br/>
+						<input type="text" name="username" id="username" maxlength="32"/><br/>
+					<label for="password">Password:</label><br/>
+						<input type="password" name="password" id="password" maxlength="32"/><br/>
+					<input type="submit" name="Submit" value="login"/>
+					<!--/fieldset-->
+			  	</form>
+			</div>
+			<div>
+				<table align="right">
+				  	<tr>
+				  		<td>
+				  			<a href="#" onClick="loginBoxToggle()" id="closeLogin">Close</a>
+				  		<dt>
+				  	</tr>
+			  	</table>
+			  	<br/><br/>
+			  	<form id='register' action="javascript:register()" method='post' accept-charset='UTF-8'>
+					<!--fieldset-->
+		  			<input type='hidden' name='submitted' id='submitted' value='1'/>
+					<label for="username">Username:</label><br/>
+						<input type="text" name="username" id="username" maxlength="32"/><br/>
+					<label for="password">Password:</label><br/>
+						<input type="password" name="password" id="password" maxlength="32"/><br/>
+					<input type="submit" name="Submit" value="register"/>
+					<!--/fieldset-->
+			  	</form><!--br/><br/>
+			  	<a href="" onClick="" id="register">Click here to register.</a-->
+			 </div>
+		</div>
 	</div>
 	
 	<div id="selectors">
@@ -237,20 +83,16 @@
 			
 		   		<td id="classColumn">
 		   			<select id="classSelector" class="selector">
-						<option class="opt">Select Class</option>
+						<option class="opt">Select Course</option>
 					</select>
 		   		</td>
-		   		
-				<td id="sectionColumn">
-					<select id="sectionSelector" class="selector">
-						<option class="opt">Select Section</option>
-					</select>
-				</td>
-			
-				<td	id="buttonColumn">
-					<button onClick="" class="button">Add</button>
-				</td>
 			</tr>
+		</table>
+	</div>
+	
+	<div id="sectionDiv" align="center">
+		<a id="hideSections" href="#" onclick="toggleSections()">Hide</a><br />
+		<table id="sectionTable" cellspacing="10">
 		</table>
 	</div>
 	
