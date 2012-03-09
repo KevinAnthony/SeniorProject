@@ -53,9 +53,9 @@ if (!$result){
         $i++;
         $row = mysql_fetch_array($result,MYSQL_ASSOC);
         while (($row) && $row["CRN"] == $temp_array["CRN"]){
-            $day[$i] = $row["DAY"];
-            $start_time[$i] = $row["START_TIME"];
-            $end_time[$i] = $row["END_TIME"];
+            $day[$i] = intval($row["DAY"]);
+            $start_time[$i] = intval($row["START_TIME"]);
+            $end_time[$i] = intval($row["END_TIME"]);
             $room[$i] = $row["ROOM"];
             $i++;
             $row = mysql_fetch_array($result,MYSQL_ASSOC);

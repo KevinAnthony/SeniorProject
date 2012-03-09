@@ -1,11 +1,17 @@
 <?php
 
+$event_name = $_GET["event_name"];
 $day = $_GET["day"];
 $start_time = $_GET["start_time"];
 $end_time = $_GET["end_time"];
 $return_array = Array("success" => true);
 
 #first we validate the inputs, making sure they are there.  Also, make sure they are within range
+if (empty($event_name)){
+    $return_array["success"]=false;
+    $error_message = "VALUEERROR: name paramiter not passed";
+    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+    }
 if (empty($day)){
     $return_array["success"]=false;
     $error_message = "VALUEERROR: day paramiter not passed";
@@ -53,8 +59,7 @@ if ($return_array["success"]){
                 die();
             }
             mysql_select_db('ejw3_proj');
-
-            $query = "insert into EVENT (START_TIME,END_TIME,DAY,USERNAME) values ('$start_time','$end_time','$day','$escaped_username');";
+            $query = "insert into EVENT (EVENT_NAME,START_TIME,END_TIME,DAY,USERNAME) values ('$event_name','$start_time','$end_time','$day','$escaped_username') on duplicate key update START_TIME = '$start_time',END_TIME='$end_time',DAY = '$day';";
             $result = mysql_query($query);
             if (!$result){
                 $return_array["success"]=false;
