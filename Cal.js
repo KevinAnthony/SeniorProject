@@ -3,6 +3,7 @@ var wInner;
 var offset;
 var start_of_day;
 var scheduleLayer = new Kinetic.Layer();
+var textLayer = new Kinetic.Layer();
 
 $(document).ready(function(){
 	start_of_day = 420;
@@ -78,6 +79,7 @@ $(document).ready(function(){
 });
 
 
+/* ========= CLASS LISTINGS ========= */
 
 var subjects = [];
 var courses = {};
@@ -85,74 +87,84 @@ var sections = [];
 var descriptions = [];
 var schedule = [];
 
+
 function loadSections(value) {
-	var sel = "./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value;
-	courses = {};								//IF THINGS DON'T WORK CHECK THIS LINE
-	var jsonGet = new XMLHttpRequest();
-	jsonGet.open("GET", sel);
-    jsonGet.onreadystatechange = function () {
-		if(jsonGet.readyState == 4 && jsonGet.status == 200){
-		    text = JSON.parse(jsonGet.responseText);
-		    var i;
+	if( $("#classSelector").value != 1 ) {
+		courses = {};
+		$.getJSON("./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value,
+		 function (text) {
+				var i;
 			
-			if(value > -1)
-			    var list = "<tr><td colspan=\"5\" id=\"description\">" + descriptions[value] + "</td></tr>";
+				if(value > -1)
+					var list = "<tr><td colspan=\"5\" id=\"description\">" + descriptions[value] + "</td></tr>";
 
-			var days = "";
-			var times = "";
-			var rooms = ""; 
-			var classy = {"crn":undefined, "cname":undefined, "prof":undefined, "days":[], "stimes":[], "etimes":[], "rooms":[]};
+				var classy;
 			
-		    for(i=0; i < text.data.length; i++){
-		    	classy.crn = text.data[i].crn;
-		    	if(text.data[i+1] != undefined)
-					var nextCrn = text.data[i+1].crn;
-
-				classy.prof = text.data[i].instructor;
-				
-				classy.days.push(text.data[i].day);
-		    	days += text.data[i].day + "<br>";
-		    	
-		    	classy.rooms.push(text.data[i].room);
-		    	rooms += text.data[i].room + "<br>";
-		    	
-		    	classy.stimes.push(text.data[i].start_time);
-		    	classy.etimes.push(text.data[i].end_time);
-				times += pixelsToTime(text.data[i].start_time) + " - " + pixelsToTime(text.data[i].end_time) + "<br>";
-																    	
-		    	if(i+1 == text.data.length || classy.crn != nextCrn){
-					list += "<tr><td>" + classy.crn + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.prof + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule("+ classy.crn +")\">Select</button></td></tr>";
-	        		sections[i] = classy.crn;
-	        		days = "";
-	        		times = "";
-	        		rooms = "";
+				for(i=0; i < text.data.length; i++){
+					var days = "";
+					var times = "";
+					var rooms = "";
+					var j;
 					
-					courses[classy.crn] = classy;	        		
-	        		var classy = {"crn":undefined, "cname":undefined, "prof":undefined, "days":[], "stimes":[], "etimes":[], "rooms":[]};
-        		}
-        	}
-        	if(list != undefined)
-				document.getElementById("sectionTable").innerHTML=list;
-		}
-	};
-	jsonGet.send();
-	
+					classy = text.data[i];
+					classy.cname = $("#classSelector option:selected").html();
+					classy.cname = classy.cname.substring(classy.cname.indexOf('-') + 2);
+					
+					for(j=0; j < text.data[i].day.length; j++){
+						days += numToDay(text.data[i].day[j]) + "<br>";
+					
+						rooms += text.data[i].room[j] + "<br>";
+					
+						times += pixelsToTime(text.data[i].start_time[j]) + " - " + pixelsToTime(text.data[i].end_time[j]) + "<br>";
+					}
+								
+					list += "<tr><td>" + classy.CRN + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.instructor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule("+ classy.CRN +")\">Add / Remove</button></td></tr>";
+		    		sections[i] = classy.CRN;
+				
+					courses[classy.CRN] = classy;	        		
+		    	}
+		    	
+		    	if(list != undefined)
+					document.getElementById("sectionTable").innerHTML=list;
+		});
+
+	}
 };
 
-function addToSchedule(crn){
-	var toAdd = courses[crn];
-	var i;
-	
-	for(i=0; i < toAdd.days.length; i++){
-		addBlock(scheduleLayer, toAdd.days[i], toAdd.stimes[i], toAdd.etimes[i]);
+function numToDay(day){
+	switch(parseInt(day)){
+		case 1:
+			return "M";
+		case 2:
+			return "T";
+		case 3:
+			return "W";
+		case 4:
+			return "Th";
+		case 5:
+			return "F";
+		case 6:
+			return "S";
 	}
+	return day;
+};
+
+function toggleSections(){
+	var isVis = $("#sectionTable").css("display");
 	
+	if(isVis == "block"){
+		$("#sectionTable").css("display", "none");
+		$("#hideSections").html("Show");
+	} if(isVis == "none"){
+		$("#sectionTable").css("display", "block");
+		$("#hideSections").html("Hide");
+	}
 };
 
 function loadClasses() {
 	var sel = $("#subjectSelector").val();
 	
-	if(sel != 1){
+	if(sel != 1 && sel != 99){
 		$.getJSON("./json/GetCourseNumbers.php?department=" + sel, function (data) {
 		    var i;
 		    var list = [];
@@ -169,6 +181,45 @@ function loadClasses() {
 			list.push("</select>");
 			$('#classColumn').html(list.join(''));
 		});
+		toggleCourseDropDown("show");
+	} else if(sel == 99) {
+		//javascript:saveEvent()
+		var form = "<tr><td colspan=\"6\" id=\"customEvent\">\
+		<form id=\"saveEventForm\" action=\"javascript:saveEvent()\" method=\"post\" accept-charset=\'UTF-8\'><span><label for=\"eventName\">Event Name:</label><br/><input type=\"text\" name=\"eventName\" id=\"eventName\" maxlength=\"32\"/></span>\
+		<br /><span><select id=\"daySelect\"><option value=\"-1\">Select Day<option/><option value=\"1\">Monday</option><option value=\"2\">Tuesday</option><option value=\"3\">Wednesday</option><option value=\"4\">Thursday</option><option value=\"5\">Friday</option><option id=\"6\">Saturday</option></select></span>\
+		<br /><span><label for=\"startTime\">Start Time:</label><br/><input type=\"text\" name=\"startTime\" id=\"startTime\" maxlength=\"5\"/><select id=\"SapSelect\"><option>AM</option><option>PM</option></select></span>\
+		<br /><span><label for=\"endTime\">End Time:</label><br/><input type=\"text\" name=\"endTime\" id=\"endTime\" maxlength=\"5\"/><select id=\"EapSelect\"><option>AM</option><option>PM</option></select></span>\
+		<br /><input type=\"submit\" name=\"Submit\" value=\"saveEvent\"/></form></td></tr>";
+		$("#sectionTable").html(form);
+		toggleCourseDropDown("hide");
+	}
+};
+
+function saveEvent() {
+	var event_name = $("#eventName").val();
+	var day = $("#daySelect").val();
+	var start_time = $("#startTime").val();
+	var end_time = $("#endTime").val();
+	$.ajax({
+		type: "POST",
+		url: "./json/SaveEvent.php",
+		data: {"event_name":event_name, "day":day, "start_time":start_time, "end_time":end_time},
+		success: function(data){
+ 			//$("#loginForm").html("Success!");
+ 			console.log(data);  
+		},
+		error: function(){
+    		console.log(data);
+  		}
+
+	});
+};
+
+function toggleCourseDropDown(option){
+	if(option == "hide"){
+		$("#classColumn").css("display", "none");
+	} if(option == "show"){
+		$("#classColumn").css("display", "block");
 	}
 };
 
@@ -177,7 +228,7 @@ function loadSubjects(){
         var i;
         var list = [];
         
-        list.push("<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Subject</option>");
+        list.push("<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Subject</option><option value=\"99\">Custom Event</option>");
         
 		$.each(data.data, function(key, val) {
 			list.push("<option value=\"" + val.department + "\" class=\"opt\">" + val.department + "</option>");
@@ -190,11 +241,78 @@ function loadSubjects(){
 };
 
 
+/* ========== Calendar Management ========= */
+
+var onSchedule = [];
+
+function addToSchedule(crn){
+	var toAdd = courses[crn];
+	var i, j, k;
+	var flagCheck = true;
+	
+	for(i=0; i < onSchedule.length; i++){
+		if(crn == onSchedule[i].crn){
+			console.log("Already on Schedule.");
+			for(j=0; j < onSchedule[i].shapeLayer.length; j++){
+				scheduleLayer.remove(onSchedule[i].shapeLayer[j]);
+				textLayer.remove(onSchedule[i].textLayer[j]);
+			}
+			stage.add(scheduleLayer);
+			stage.add(textLayer);
+			
+			onSchedule.splice(i,1);
+			return;
+		}
+	}
+	
+	for(i=0; i < onSchedule.length; i++){
+		for(j=0; j < onSchedule[i].day.length && flagCheck; j++){
+			for(k=0; k < toAdd.day.length && flagCheck; k++){
+				if(toAdd.day[k] == onSchedule[i].day[j]){
+					if(toAdd.start_time[k] >= onSchedule[i].start_time[j] && toAdd.start_time[k] <= onSchedule[i].end_time[j])
+						flagCheck = false;
+						
+					if(toAdd.end_time[k] >= onSchedule[i].start_time[j] && toAdd.end_time[k] <= onSchedule[i].end_time[j])
+						flagCheck = false;
+					
+				}
+			}
+		}
+		if(!flagCheck)
+			break;
+	}
+	
+	if(flagCheck){
+		var text = [];
+		var shapes = [];
+		var texts = [];
+		var both = [];
+		
+		text.push(toAdd.cname)
+		text.push("(" + toAdd.crn + ")");
+	
+		for(i=0; i < toAdd.day.length; i++){
+			var dayText = text.slice(0);
+			dayText.push(toAdd.room[i] + " " + pixelsToTime(toAdd.start_time[i]) + " - " + pixelsToTime(toAdd.end_time[i]));
+			both = addBlock(scheduleLayer, textLayer, dayText, toAdd.day[i], toAdd.start_time[i], toAdd.end_time[i]);
+
+			shapes.push(both[0]);
+			texts.push(both[1]);
+		}
+		toAdd.shapeLayer = shapes;
+		toAdd.textLayer = texts;
+		onSchedule.push(toAdd);
+	} else {
+		console.log("Scheduling Conflict");
+	}
+};
+
 //start_time, end_time in minutes
-function addBlock(scheduleLayer, day, start_time, end_time){	//generates a rectangle of specified dimensions
+function addBlock(scheduleLayer, textLayer, dayText, day, start_time, end_time){	//generates a rectangle of specified dimensions
+	var tX = DayToPixels(parseInt(day));
+	var tY = TimeToPixels(parseInt(start_time));
+	
 	var block = new Kinetic.Shape(function(){
-		var tX = DayToPixels(parseInt(day));
-		var tY = TimeToPixels(parseInt(start_time));
 		var w = DayToPixels(parseInt(day)+1) - tX;
 		var h = TimeToPixels(parseInt(end_time)) - tY;
 		var context = this.getContext();
@@ -206,11 +324,35 @@ function addBlock(scheduleLayer, day, start_time, end_time){	//generates a recta
 		context.strokeStyle = "#000000";
 		
 		context.stroke(); //draw
+		
 	});
-
+	
+	var blockText = new Kinetic.Shape(function() {
+		var i;
+		var context = this.getContext();
+		context.fillStyle = "#000000";
+		for(i=0; i < dayText.length; i++){
+			context.fillText(dayText[i], tX+8, tY+(15 * (i+1)));
+			context.stroke();
+		}
+	});
+	/*var text = new Kinetic.Text({
+		text: "TestText",
+		fontSize: 12,
+		x: (tX+10),
+		y: (tY+10),
+		fontFamily: "monospace"
+	});*/
+	
+	//blockText.setZIndex(block.getZIndex() + 1);
+	
 	scheduleLayer.add(block);
+	textLayer.add(blockText);	
+	//scheduleLayer.add(text);
 	stage.add(scheduleLayer);
-	return block;
+	stage.add(textLayer);
+	
+	return [block, blockText];
 };
 
 
@@ -243,63 +385,6 @@ var toggle = 0;
 var tgle = 1;
 var text = {};
 
-function populateList(){							//retrieves list from the server, adds it to the option box
-	if(toggle == 0){
-    	var jsonGet = new XMLHttpRequest();
-    	jsonGet.open("GET","./json/GetAllEvents.php");
-        jsonGet.onreadystatechange = function () {
-        	//console.log(jsonGet.readyState);
-        	//console.log(jsonGet.status);
-			if(jsonGet.readyState == 4 && jsonGet.status == 200){
-		        text = JSON.parse(jsonGet.responseText);
-		        var i;
-		        var list = "<select id=\"sbox\" class=\"selector\">";
-		        for(i=0; i < text.data.length; i++){
-		        	//text.data[i].start_time = parseInt(text.data[i].start_time);
-		        	//text.data[i].end_time = parseInt(text.data[i].end_time);
-		        	//text.data[i].day = parseInt(text.data[i].day);
-		        	var time = text.data[i].start_time / 60;
-		        	time = Math.floor(time);
-		        	var mins = text.data[i].start_time % 60;
-		        	(mins < 10) ? mins = ("0" + mins) : null;
-        			list += "<option value=\""+i+"\" class=\"opt\">" + text.data[i].day + " - " + time + ":" + mins + "</option>";
-            		blocks[i] = null;
-            	}
-            	list += "</select>";
-				document.getElementById("sdiv").innerHTML=list;
-	    	}
-	    };
-	    jsonGet.send();
-	    toggle = 0;
-	} else {}
-
-};
-
-//{"success":true,"number_of_rows":2,"0":{"id":"7","event_name":null,"day":"3","start_time":"510","end_time":"617"},"1":{"id":"8","event_name":null,"day":"3","start_time":"510","end_time":"617"}}
-/*
-	if(text.success)
-*/
-
-var blocks = [];
-function displaySelected(){								//generates a block for the selected option
-	var sel = document.getElementById("sbox").value;
-	var start = ((text.data[sel].start_time < start_of_day) ? 420 : text.data[sel].start_time);
-	var end = ((text.data[sel].end_time > (900 + start_of_day)) ? (900 + start_of_day) : text.data[sel].end_time);
-	if(end > start_of_day && start < (900 + start_of_day) && blocks[sel] == null){
-		blocks[sel] = addBlock(scheduleLayer, text.data[sel].day, start, end); 
-	}	
-};
-	
-function removeSelected(){								//removes the block of the selected option
-	var sel = document.getElementById("sbox").value;
-	if(blocks[sel] != null){
-		scheduleLayer.remove(blocks[sel]);
-		stage.add(scheduleLayer);
-		blocks[sel] = null;
-	}
-};
-
-
 function sendEvent(){
 	var startTime = document.getElementById("sbox1").value;
 	var endTime = document.getElementById("sbox2").value;
@@ -309,17 +394,8 @@ function sendEvent(){
     jsonGet.send();
 };
 
-function toggleSections(){
-	var isVis = $("#sectionTable").css("display");
-	
-	if(isVis == "block"){
-		$("#sectionTable").css("display", "none");
-		$("#hideSections").html("Show");
-	} if(isVis == "none"){
-		$("#sectionTable").css("display", "block");
-		$("#hideSections").html("Hide");
-	}
-}
+
+/*============= LOGIN ==============*/
 
 function loginBoxToggle(){
 	var blah = $("#slider").css('left');
@@ -388,21 +464,26 @@ function logout() {
 
 	});
 };
+//Finished=====================
+//login works on any credentials?
+//saved schedules?
+
 //logout and register functions -> ajax
 //classes stored as object of objects
 //select buttons display classes
 //hiding class listings
 //times as times (not pixels)
-//============================
 //text on added blocks
-//displayed classes stored as objects, linked to displayed blocks (highlight same crn? mouseovers?)
+//displayed classes stored as objects, linked to displayed blocks 
 //time collision handling
+
+//To Do=======================
 
 //user controlled events on menus, building them
 //saving events
-
+//(highlight same crn? mouseovers?)
 //chrome bug on drop down lists (ugly coloring)
 
-
-//login works on any credentials?
-//saved schedules?
+//conflicts in list
+//slide out course selections
+//njit logo
