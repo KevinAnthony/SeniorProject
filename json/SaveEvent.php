@@ -9,7 +9,7 @@ $return_array = Array("success" => true);
 #first we validate the inputs, making sure they are there.  Also, make sure they are within range
 if (empty($event_name)){
     $return_array["success"]=false;
-    $error_message = "VALUEERROR: name paramiter not passed";
+    $error_message = "VALUEERROR: event_name paramiter not passed";
     $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
     }
 if (empty($day)){
