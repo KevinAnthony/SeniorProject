@@ -14,9 +14,9 @@ if(isset($_COOKIE['SID'])){
     if(isset($_SESSION['Username'])){
         mysql_select_db('ejw3_proj');
         $username = $_SESSION['Username'];
+        
         $query = "select ID,EVENT_NAME,START_TIME,DAY,END_TIME from EVENT where username = '$username';";
         $result = mysql_query($query);
-
         if (!$result){
             $return_array["success"]=false;
             $error_message = "SQLERROR: Error with query -- ".mysql_error();
