@@ -17,9 +17,6 @@
     </script>
 </head>
 <body>
-	<!-- In reality, this will have a topic selection (eg. CS, MATH) -->
-	<!-- This will load the courses, you can then add a course to your schedule -->
-	<!-- There will also be a custom field to add custom events -->
 	<div id="slideParent">
 		<div id="slider">
 			 <div>
@@ -32,6 +29,7 @@
 		  		<form id="loginForm" action="javascript:login()" method="post" accept-charset='UTF-8'>
 					<!--fieldset>
 		  			<input type='hidden' name='submitted' id='submitted' value='1'/-->
+		  			<h1>LOGIN</h1>
 					<label for="username">Username:</label><br/>
 						<input type="text" name="username" id="username" maxlength="32"/><br/>
 					<label for="password">Password:</label><br/>
@@ -49,6 +47,7 @@
 				  	</tr>
 			  	</table>
 			  	<br/><br/>
+			  	<h1>REGISTER</h1>
 			  	<form id='register' action="javascript:register()" method='post' accept-charset='UTF-8'>
 					<!--fieldset-->
 		  			<input type='hidden' name='submitted' id='submitted' value='1'/>
@@ -62,39 +61,49 @@
 			  	<a href="" onClick="" id="register">Click here to register.</a-->
 			 </div>
 		</div>
-	</div>
-	
-	<div id="selectors">
-		<table align="right">
-			<tr>
-				<td	id="loginColumn">
-					<a id="loginLink" href="#" onClick="loginBoxToggle()">Login / Register</a>
-				</td>
-			</tr>		
-		</table>
-	
-		<table>
-			<tr>
-				<td id="subjectColumn">
-					<select id="subjectSelector" class="selector">
-						<option class="opt">Select Subject</option>
-					</select>
-				</td>
+		
+		<div id="courseSlide">
+			<div id="selectors">
+				<table>
+					<tr>
+						<td id="subjectColumn">
+							<select id="subjectSelector" class="selector">
+								<option class="opt">Select Subject</option>
+							</select>
+						</td>
 			
-		   		<td id="classColumn">
-		   			<select id="classSelector" class="selector">
-						<option class="opt">Select Course</option>
-					</select>
-		   		</td>
-			</tr>
-		</table>
+				   		<td id="classColumn">
+				   			<select id="classSelector" class="selector">
+								<option class="opt">Select Course</option>
+							</select>
+				   		</td>
+					</tr>
+				</table>
+			</div>
+	
+			<div id="sectionDiv" align="center">
+				<a id="hideSections" href="#" onclick="toggleSections()">Hide</a><br />
+				<table id="sectionTable" cellspacing="10">
+				</table>
+			</div>
+		</div>
 	</div>
 	
-	<div id="sectionDiv" align="center">
-		<a id="hideSections" href="#" onclick="toggleSections()">Hide</a><br />
-		<table id="sectionTable" cellspacing="10">
-		</table>
-	</div>
+	<table align="left">
+		<tr>
+			<td>
+				<a id="loginLink" href="#" onclick="toggleSections()">Show Sections</a>
+			</td>
+		</tr>
+	</table>
+	
+	<table align="right">
+		<tr>
+			<td	id="loginColumn">
+				<a id="loginLink" href="#" onClick="loginBoxToggle()">Login / Register</a>
+			</td>
+		</tr>		
+	</table>
 	
 	<div id="savedSchedules" align="center">
 		<button onClick="" onMouseOver="" class="scheduleButton">S1</button>

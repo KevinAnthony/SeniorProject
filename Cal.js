@@ -6,7 +6,7 @@ var scheduleLayer = new Kinetic.Layer();
 var textLayer = new Kinetic.Layer();
 
 $(document).ready(function(){
-	start_of_day = 420;
+	start_of_day = 510;
 	wInner = window.innerWidth - 30;
     stage = new Kinetic.Stage("cont", wInner, 1100);
     var calendarLayer = new Kinetic.Layer();
@@ -16,7 +16,7 @@ $(document).ready(function(){
     var topX = wInner / (divs * 2) + 0.5;			//column size / 2 padding on each side
 	var topY = offset + 0.5;	
 	var width = wInner - 2*topX;
-	var height = 900;										//this maps 1 pixel : 1 minute, nifty
+	var height = 810;										//this maps 1 pixel : 1 minute, nifty
  	var divs = height / 30;
  	var i = 0;
     
@@ -150,13 +150,24 @@ function numToDay(day){
 };
 
 function toggleSections(){
-	var isVis = $("#sectionTable").css("display");
+	var isVis = $("#courseSlide").css("left");
+	var toLeft;
 	
-	if(isVis == "block"){
-		$("#sectionTable").css("display", "none");
+	if(parseInt(isVis) == 0){
+		toLeft = -$("#courseSlide").outerWidth();
+		
+		$("#courseSlide").animate({
+			left : toLeft
+		});
+		
 		$("#hideSections").html("Show");
-	} if(isVis == "none"){
-		$("#sectionTable").css("display", "block");
+	} if(parseInt(isVis) < 0){
+		toLeft = 0;
+		
+		$("#courseSlide").animate({
+			left : toLeft
+		});
+		
 		$("#hideSections").html("Hide");
 	}
 };
@@ -187,10 +198,13 @@ function loadClasses() {
 		var form = "<tr><td colspan=\"6\" id=\"customEvent\">\
 		<form id=\"saveEventForm\" action=\"javascript:saveEvent()\" method=\"post\" accept-charset=\'UTF-8\'><span><label for=\"eventName\">Event Name:</label><br/><input type=\"text\" name=\"eventName\" id=\"eventName\" maxlength=\"32\"/></span>\
 		<br /><span><select id=\"daySelect\"><option value=\"-1\">Select Day<option/><option value=\"1\">Monday</option><option value=\"2\">Tuesday</option><option value=\"3\">Wednesday</option><option value=\"4\">Thursday</option><option value=\"5\">Friday</option><option id=\"6\">Saturday</option></select></span>\
-		<br /><span><label for=\"startTime\">Start Time:</label><br/><input type=\"text\" name=\"startTime\" id=\"startTime\" maxlength=\"5\"/><select id=\"SapSelect\"><option>AM</option><option>PM</option></select></span>\
-		<br /><span><label for=\"endTime\">End Time:</label><br/><input type=\"text\" name=\"endTime\" id=\"endTime\" maxlength=\"5\"/><select id=\"EapSelect\"><option>AM</option><option>PM</option></select></span>\
-		<br /><input type=\"submit\" name=\"Submit\" value=\"saveEvent\"/></form></td></tr>";
+		<br /><span><label for=\"startTime\">Start Time:</label><br/><input type=\"text\" name=\"startTime\" id=\"startTime\" maxlength=\"5\"/><select id=\"SapSelect\"><option value=\"0\">AM</option><option value=\"1\">PM</option></select></span>\
+		<br /><span><label for=\"endTime\">End Time:</label><br/><input type=\"text\" name=\"endTime\" id=\"endTime\" maxlength=\"5\"/><select id=\"EapSelect\"><option value=\"0\">AM</option><option value=\"1\">PM</option></select></span>\
+		<br /><input type=\"submit\" name=\"Submit\" value=\"Save Event\"/></form></td></tr>";
 		$("#sectionTable").html(form);
+		
+		//retrieve and display saved events
+		
 		toggleCourseDropDown("hide");
 	}
 };
@@ -198,10 +212,12 @@ function loadClasses() {
 function saveEvent() {
 	var event_name = $("#eventName").val();
 	var day = $("#daySelect").val();
-	var start_time = $("#startTime").val();
-	var end_time = $("#endTime").val();
+	var start_time = clockToMin($("#startTime").val(), $("#SapSelect").val());
+	var end_time = clockToMin($("#endTime").val(), $("#EapSelect").val());
+	console.log("???");
+	//validate
 	$.ajax({
-		type: "POST",
+		type: "GET",
 		url: "./json/SaveEvent.php",
 		data: {"event_name":event_name, "day":day, "start_time":start_time, "end_time":end_time},
 		success: function(data){
@@ -213,6 +229,18 @@ function saveEvent() {
   		}
 
 	});
+	
+	//add to displayed events
+};
+
+function clockToMin(time, ap){
+	var minutes = parseInt(time);
+	minutes += ap == 1 ? 12 : 0;
+	minutes *= 60;
+	time = time.substring(time.indexOf(':'+1));
+	minutes += parseInt(time);
+	
+	return minutes;
 };
 
 function toggleCourseDropDown(option){
@@ -228,7 +256,7 @@ function loadSubjects(){
         var i;
         var list = [];
         
-        list.push("<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" value=\"1\">Select Subject</option><option value=\"99\">Custom Event</option>");
+        list.push("<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" class=\"opt\" value=\"1\">Select Subject</option><option class=\"opt\" value=\"99\">Custom Event</option>");
         
 		$.each(data.data, function(key, val) {
 			list.push("<option value=\"" + val.department + "\" class=\"opt\">" + val.department + "</option>");
@@ -245,13 +273,13 @@ function loadSubjects(){
 
 var onSchedule = [];
 
-function addToSchedule(crn){
-	var toAdd = courses[crn];
+function addToSchedule(CRN){
+	var toAdd = courses[CRN];
 	var i, j, k;
 	var flagCheck = true;
 	
 	for(i=0; i < onSchedule.length; i++){
-		if(crn == onSchedule[i].crn){
+		if(CRN == onSchedule[i].CRN){
 			console.log("Already on Schedule.");
 			for(j=0; j < onSchedule[i].shapeLayer.length; j++){
 				scheduleLayer.remove(onSchedule[i].shapeLayer[j]);
@@ -289,7 +317,7 @@ function addToSchedule(crn){
 		var both = [];
 		
 		text.push(toAdd.cname)
-		text.push("(" + toAdd.crn + ")");
+		text.push("(" + toAdd.CRN + ")");
 	
 		for(i=0; i < toAdd.day.length; i++){
 			var dayText = text.slice(0);
@@ -476,14 +504,20 @@ function logout() {
 //text on added blocks
 //displayed classes stored as objects, linked to displayed blocks 
 //time collision handling
+//user controlled events on menus, building them
+//chrome bug on drop down lists (ugly coloring)
+//conflicts in list
+//slide out course selections
 
 //To Do=======================
 
-//user controlled events on menus, building them
-//saving events
-//(highlight same crn? mouseovers?)
-//chrome bug on drop down lists (ugly coloring)
+//conf pass on reg
+//multiple sched
+//save sched
+//mouseover
+//save event
+//retrieve events
 
-//conflicts in list
-//slide out course selections
+//(highlight same crn? mouseovers?)
+
 //njit logo

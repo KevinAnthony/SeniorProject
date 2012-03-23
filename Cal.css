@@ -19,7 +19,7 @@ div#savedSchedules {
 	pointer-events:none;
 	width:99%;
 	position:absolute;
-	height:300px;
+	height:99%;
 	overflow:hidden;
 	z-index:1000;
 }
@@ -45,6 +45,19 @@ div#savedSchedules {
      text-align:center;
      background-color: #000;
      z-index: 1001;
+}
+
+#courseSlide {
+	pointer-events:auto;
+	position: absolute;
+	float: left;
+	left: 0px;
+	visibility: visible;
+	position: absolute;
+	height: auto;
+	width: 75%;
+	background-color: #fff;
+	border:3px solid #000;
 }
 
 #sectionDiv {
@@ -124,6 +137,7 @@ table#sectionTable td {
 
 .opt {
 	color: #ffffff;
+	background: #304876;
 }
 
 .selDiv {
