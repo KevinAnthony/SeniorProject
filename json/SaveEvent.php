@@ -49,7 +49,7 @@ if ($return_array["success"]){
         session_id($_COOKIE['SID']);
         session_start();
         if(isset($_SESSION['Username'])){
-            $escaped_username = mysql_real_escape_string($_SESSION['Username']);
+            $username = $_SESSION['Username'];
             $connection = mysql_connect('sql.njit.edu','ejw3_proj','ozw6OBAO') ;
             if (!$connection){
                 $return_array["success"]=false;
@@ -59,7 +59,7 @@ if ($return_array["success"]){
                 die();
             }
             mysql_select_db('ejw3_proj');
-            $query = "insert into EVENT (EVENT_NAME,START_TIME,END_TIME,DAY,USERNAME) values ('$event_name','$start_time','$end_time','$day','$escaped_username') on duplicate key update START_TIME = '$start_time',END_TIME='$end_time',DAY = '$day';";
+            $query = "insert into EVENT (EVENT_NAME,START_TIME,END_TIME,DAY,USERNAME) values ('$event_name','$start_time','$end_time','$day','$username') on duplicate key update START_TIME = '$start_time',END_TIME='$end_time',DAY = '$day';";
             $result = mysql_query($query);
             if (!$result){
                 $return_array["success"]=false;
