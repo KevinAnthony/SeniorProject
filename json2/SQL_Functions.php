@@ -80,7 +80,9 @@ function GetDepartments($semester){	//DONE
 }
 
 function CheckCredentials($username, $password){
-	$result = query("SELECT * FROM user WHERE username='$username' AND password='$password'");
+    $u = mysql_real_escape_string($username);
+    $p = mysql_real_escape_string($password);
+	$result = query("SELECT * FROM user WHERE username='$u' AND password='$p'");
 	return ($result) ? true : false;
 }
 

@@ -19,7 +19,7 @@ if(isset($_COOKIE['SID'])){
             $single_schedual= Array();
             $event_array = Array();
             $class_array = Array();
-            while( $row_event = array_shift($event_result)) ) {
+            while( $row_event = array_shift($event_result) ) {
                 $temp = Array("schedule_name" =>$row_event["SCHEDULE_NAME"],"event_name"=>$row_event["EVENT_NAME"],
                         "start_time"=>$row_event["START_TIME"],"end_time"=>$row_event["END_TIME"],"day"=>$row_event["DAY"]);
                 array_push($event_array,$temp);

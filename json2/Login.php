@@ -8,20 +8,16 @@ if (isset($_GET["debug"])){
     $username = $_POST["username"];
     $password = $_POST["password"];
 }
+$username = 'kevin';
+$password = 'Inverse';
 if (empty($username) or empty($password)){
     $return_array["success"] = false;
     $return_array["error"] = "Parameters not passed username or password";
 } else {
     $password_hash = crypt($password,'$1$kevinant$');
-    $result = CheckCredentialsi($username,$password_hash);
-    if (!$result){
+    if (!CheckCredentials($username,$password_hash)){
         $return_array["success"]=false;
         $error_message = "SQLERROR: with username or password -- ".mysql_error();
-        $return_array["printable_error_message"] = "Invalid Username or Password";
-        $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
-    }else{
-        $return_array["success"]=false;
-        $error_message = "SQLERROR: Search returned more then no rows";
         $return_array["printable_error_message"] = "Invalid Username or Password";
         $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
     }

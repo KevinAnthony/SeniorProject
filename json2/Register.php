@@ -1,8 +1,12 @@
 <?php
 include_once dirname(__FILE__)."/SQL_Functions.php";
-$username = $_POST["username"];
-$password = $_POST["password"];
-
+if (isset($_GET["debug"])){
+    $username = $_GET["username"];
+    $password = $_GET["password"];
+} else {
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+}
 $return_array = Array("success" => true);
 
 if ((empty($username)) or (empty($password))){
