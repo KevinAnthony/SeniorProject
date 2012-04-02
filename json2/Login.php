@@ -15,7 +15,6 @@ if (empty($username) or empty($password)){
     $password_hash = crypt($password,'$1$kevinant$');
     $result = CheckCredentialsi($username,$password_hash);
     if (!$result){
-        $count = mysql_num_rows($result);
         $return_array["success"]=false;
         $error_message = "SQLERROR: with username or password -- ".mysql_error();
         $return_array["printable_error_message"] = "Invalid Username or Password";
