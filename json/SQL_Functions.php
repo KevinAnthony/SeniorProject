@@ -1,6 +1,6 @@
 <?php
 
-function db_connect (){
+function db_connect(){
 		
 	$connection = mysql_connect("sql.njit.edu", "ejw3_proj", "ozw6OBAO");
 	if (!$connection){
@@ -80,22 +80,22 @@ function GetDepartments($semester){	//DONE
 }
 
 function CheckCredentials($username, $password){
-	$result = query("SELECT * FROM user WHERE username='$username' AND password='$password'");
-	return ($result) ? true : false;
+	$result = @query("SELECT * FROM user WHERE username='%s' AND password='%s'",mysql_real_escape_string($username),mysql_real_escape_string($password));
+	return (mysql_num_rows($result)) ? true : false;
 }
 
-function RegisterUser($username, $password){	//DONE
-	$result = query("INSERT INTO user VALUES ('$username', '$password')");
+function RegisterUser($username, $password){	
+	$result = @query("INSERT INTO user VALUES ('%s', '%s')", mysql_real_escape_string($username), mysql_real_escape_string($password));
    	return ($result) ? true : false;
 }
 
-function SaveEvent($event_name, $start, $end, $day, $username){	//DONE
+function SaveEvent($event_name, $start, $end, $day, $username){	
 	$result = query("INSERT INTO event(event_name, start_time, end_time, day, username) VALUES ".
 					"('$event_name', '$start', '$end', '$day', '$username')");
     return ($result) ? true : false;
 }
 
-function SaveSchedule($semester, $user, $schedule_name, $courses, $events){	//DONE
+function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
 	
 	query("INSERT INTO schedule (user, schedule_name) VALUES ('$user', '$schedule_name')");
 	$id = query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$schedule_name'");
@@ -115,15 +115,15 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){	//DO
 	return true;
 }
 
-function get_event_names ($username){		// DONE
+function get_event_names ($username){		
 	return associative(query("SELECT event_name FROM event WHERE username='$username'"));
 }
 
-function get_all_crn($semester){		// DONE
+function get_all_crn($semester){		
 	return associative(query("SELECT crn FROM courses WHERE semester='$semester'"));
 }
 
-function get_dates($semester){			// DONE
+function get_dates($semester){			
 	$start = associative(query("SELECT month, day, description FROM dates WHERE semester='$semester' AND type=\"start\""));
 	$last = associative(query("SELECT month, day, description FROM dates WHERE semester='$semester' AND type=\"last\""));
 	$closed = associative(query("SELECT month, day, description FROM dates WHERE semester='$semester' AND type=\"closed\""));
