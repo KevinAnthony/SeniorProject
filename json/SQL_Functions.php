@@ -1,10 +1,18 @@
 <?php
 
+<<<<<<< HEAD
 function db_connect(){
 		
 	$connection = mysql_connect("sql.njit.edu", "ejw3_proj", "ozw6OBAO");
 	if (!$connection){
 		return("Could not connect to MySQL database: ".mysql_error());
+=======
+function db_connect (){
+		
+	$connection = mysql_connect("sql.njit.edu", "ejw3_proj", "ozw6OBAO");
+	if (!$connection){
+		return("Could not connect to MySQL database ".mysql_error());
+>>>>>>> origin/master
 	}
 	mysql_select_db("ejw3_proj", $connection);
 	
@@ -13,7 +21,11 @@ function db_connect(){
 function query ($query_str){
 	db_connect();
 	
+<<<<<<< HEAD
 	$result=mysql_query($query_str) or die ( mysql_error());
+=======
+	$result=mysql_query($query_str) or return( mysql_error());
+>>>>>>> origin/master
 	
 	mysql_close();
 	
@@ -36,46 +48,50 @@ function associative($result){
 
 
 /* QUERIES */	
-function DeleteEvent($id, $user){ 	// DONE
-	$result=query("DELETE FROM event WHERE username='$user' AND ID='$id'");	// Return true or false if attempt to delete event that doesn't exist?
-	return ($result) ? true : false;	
+function DeleteEvent($id, $user){
+	$result=query("DELETE FROM event WHERE user=$user AND ID=$id");	// Return true or false if attempt to delete event that doesn't exist?
+	$result ? return true : return false;
 }	
 	
-function GetEvents($user){		// DONE
-	$result = query("SELECT id, event_name, start_time, end_time, day FROM event WHERE username='$user'");
+function GetEvents($user){
+	$result = query("SELECT id, event_name, start_time, end_time, day FROM event WHERE username=$user");
 	
 	return associative($result);  
 }	
 
-function GetClassTimes($department, $course_number, $semester){		// DONE
+function GetClassTimes($department, $course_number, $semester){
 	$result = query("SELECT * FROM course_times T INNER JOIN courses C on T.crn=C.crn ".
-			" WHERE C.dept = '$department' AND C.number = '$course_number' AND C.semester='$semester' ORDER BY T.crn,T.day;");
+			" WHERE C.dept = '$department' AND C.number = $course_number AND C.semester='$semester' ORDER BY T.crn,T.day;");
 	
 	return associative($result);
 }
 
-function GetAllCourseNumbers($department, $semester){			// DONE
-	return associative(query("SELECT DISTINCT C.number, D.name, D.description FROM courses C INNER JOIN ".
-			"course_description D ON D.dept = C.dept AND D.number = C.number WHERE C.dept = '$department' and C.semester='$semester'"));
 }
 
-function GetSchedules($username, $semester){	//DONE
-	$id = query("SELECT schedule_id FROM schedule WHERE user='$username'");
-	$id = mysql_fetch_array($id);
-	$id = $id{"schedule_id"};
 	
-	$events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'"));
-	$courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id'"));
+	
+function GetAllCourseNumbers($department, $semester){
+	return associative(query("SELECT DISTINCT C.number, D.name, D.description FROM courses C INNER JOIN ".
+			"course_descriptions D ON D.dept = C.dept AND D.number = C.number WHERE C.dept = '$department' and C.semester='$semester'"));
+}
+
+function GetSchedules($username, $semester){
+	$id = query("SELECT id FROM schedules WHERE user='$username'");
+	$id = mysql_fetch_array($id);
+	$id = $id{"id"};
+	
+	$events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id=$id AND semester=$semester"));
+	$courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id=$id AND semester=$semester"));
 	
 	$result=array();
-	$result{"id"}{"events"}=$events;
-	$result{"id"}{"courses"}=$courses;
+	$result{"events"}=$events;
+	$result{"courses"}=$courses;
 	
 	return $result;
 }
 
-function GetDepartments($semester){	//DONE
-	$result = query("SELECT DISTINCT dept FROM courses ORDER BY dept");
+function GetDepartments(){
+	$result = query("SELECT DISTINCT dept FROM s12_courses ORDER BY dept");
 	return associative($result);
 }
 
@@ -110,6 +126,36 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
 	while ($event = array_shift($events)){
 		$result=query("INSERT INTO schedule_event VALUES ('$semester','$id', '$event')");
 		if ($result) { continue; } else { return false; }
+	$result = query("SELECT * FROM user WHERE username='$username' AND password='$password'");
+	$result ? return true : return false;
+}
+
+function RegisterUser($username, $password){
+	$result = query("INSERT INTO user VALUES ('$username', '$password')");
+	$result ? return true : return false;
+}
+
+function SaveEvent($event_name, $start, $end, $day, $username){
+	$result = query("INSERT INTO event(event_name, start_time, end_time, day, username) VALUES ".
+					"('$event_name', '$start', '$end', '$day', '$username')");
+	$result ? return true : return false;
+}
+
+function SaveSchedules($user, $schedule_name, $courses, $events){
+	
+	query("INSERT INTO schedule VALUES ($user, $schedule_name)");
+	$id = ("SELECT MAX(id) FROM schedule WHERE user='$username' AND schedule_name='$schedule_name'");
+	$id = mysql_fetch_row($id);
+	$id = $id{"id"};
+		
+	while ($course = array_shift($courses)){
+		$result=query("INSERT INTO schedule_courses VALUES ($id, $course)");
+		$result ? continue : return false;
+	}
+	
+	while ($event = array_shift($events)){
+		$result=query("INSERT INTO schedule_events VALUES ($id, $event)");
+		$result ? continue : return false;
 	}
 	
 	return true;
@@ -127,6 +173,18 @@ function get_dates($semester){
 	$start = associative(query("SELECT month, day, description FROM dates WHERE semester='$semester' AND type=\"start\""));
 	$last = associative(query("SELECT month, day, description FROM dates WHERE semester='$semester' AND type=\"last\""));
 	$closed = associative(query("SELECT month, day, description FROM dates WHERE semester='$semester' AND type=\"closed\""));
+function get_event_names ($username){
+	return associative(query("SELECT event_name FROM event WHERE username='$username'"));
+}
+
+function get_all_crn($semester){
+	return associative(query("SELECT crn FROM courses WHERE semester='$semester'"));
+}
+
+function get_dates($semester){
+	$start = assoiciative(query("SELECT month, day, description FROM dates WHERE semester='$semester' AND type=\"start\""));
+	$last = associative(query("SELECT month, day, description FROM dates WHERE semester='$semester' AND type=\"last\"");
+	$closed = associative(query("SELECT month, day, description FROM dates WHRE semester='$semester' AND type=\"closed\"");
 	
 	$dates = array();
 	$dates{"start"} = $start;
