@@ -1,18 +1,10 @@
 <?php
 
-<<<<<<< HEAD
 function db_connect(){
 		
 	$connection = mysql_connect("sql.njit.edu", "ejw3_proj", "ozw6OBAO");
 	if (!$connection){
 		return("Could not connect to MySQL database: ".mysql_error());
-=======
-function db_connect (){
-		
-	$connection = mysql_connect("sql.njit.edu", "ejw3_proj", "ozw6OBAO");
-	if (!$connection){
-		return("Could not connect to MySQL database ".mysql_error());
->>>>>>> origin/master
 	}
 	mysql_select_db("ejw3_proj", $connection);
 	
@@ -21,11 +13,8 @@ function db_connect (){
 function query ($query_str){
 	db_connect();
 	
-<<<<<<< HEAD
-	$result=mysql_query($query_str) or die ( mysql_error());
-=======
 	$result=mysql_query($query_str) or return( mysql_error());
->>>>>>> origin/master
+
 	
 	mysql_close();
 	
