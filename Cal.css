@@ -20,7 +20,7 @@ div#savedSchedules {
 	width:99%;
 	position:absolute;
 	height:99%;
-	overflow:hidden;
+	overflow-x:hidden;
 	z-index:1000;
 }
 

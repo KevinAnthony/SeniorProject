@@ -201,9 +201,38 @@ function loadClasses() {
 		<br /><span><label for=\"startTime\">Start Time:</label><br/><input type=\"text\" name=\"startTime\" id=\"startTime\" maxlength=\"5\"/><select id=\"SapSelect\"><option value=\"0\">AM</option><option value=\"1\">PM</option></select></span>\
 		<br /><span><label for=\"endTime\">End Time:</label><br/><input type=\"text\" name=\"endTime\" id=\"endTime\" maxlength=\"5\"/><select id=\"EapSelect\"><option value=\"0\">AM</option><option value=\"1\">PM</option></select></span>\
 		<br /><input type=\"submit\" name=\"Submit\" value=\"Save Event\"/></form></td></tr>";
-		$("#sectionTable").html(form);
 		
 		//retrieve and display saved events
+		$.getJSON("./json/GetAllEvents.php",
+		 function (text) {
+		 		var list = "";
+				var i;
+
+				var eventName;
+			
+				for(i=0; i < text.data.length; i++){
+					var day = "";
+					var times = "";
+					
+					eventName = text.data[i].event_name;
+				
+					day += numToDay(text.data[i].day) + "<br>";
+				
+					times += pixelsToTime(text.data[i].start_time) + " - " + pixelsToTime(text.data[i].end_time) + "<br>";
+					
+								
+					list += "<tr><td>" + eventName + "</td><td>" + day + "</td><td>" + times + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule("+  ")\">Add / Remove</button></td></tr>";
+//		    		sections[i] = classy.CRN;
+				
+//					courses[classy.CRN] = classy;	        		
+		    	}
+		    	
+		    	if(list != undefined)
+					form += list;
+					
+				$("#sectionTable").html(form);
+		});
+		
 		
 		toggleCourseDropDown("hide");
 	}
@@ -508,16 +537,26 @@ function logout() {
 //chrome bug on drop down lists (ugly coloring)
 //conflicts in list
 //slide out course selections
+//save event
+//retrieve events
+//custom event on schedule
 
 //To Do=======================
-
-//conf pass on reg
 //multiple sched
 //save sched
 //mouseover
-//save event
-//retrieve events
+
+//conf pass on reg
+//something happen on login
+
+//red conflict on course/event selection (?)
+//height of selection
+
+//schedule predictor
 
 //(highlight same crn? mouseovers?)
 
+//selection drop down
 //njit logo
+//colors
+//minify
