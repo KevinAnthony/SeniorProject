@@ -1,18 +1,16 @@
 <?php
 
 function db_connect(){
-
     $connection = mysql_connect("sql.njit.edu", "ejw3_proj", "ozw6OBAO");
     if (!$connection){
         return("Could not connect to MySQL database: ".mysql_error());
     }
     mysql_select_db("ejw3_proj", $connection);
-
 }	
 
 function query ($query_str){
     db_connect();
-
+    
     $result=mysql_query($query_str) or die( mysql_error());
     mysql_close();
 
@@ -36,12 +34,12 @@ function associative($result){
 
 /* QUERIES */	
 function DeleteEvent($id, $user){
-    $result=query("DELETE FROM event WHERE user=$user AND ID=$id");	// Return true or false if attempt to delete event that doesn't exist?
+    $result=query("DELETE FROM event WHERE user='$user' AND ID=$id");	// Return true or false if attempt to delete event that doesn't exist?
     return $result ? true : false;
 }	
 
 function GetEvents($user){
-    $result = query("SELECT id, event_name, start_time, end_time, day FROM event WHERE username=$user");
+    $result = query("SELECT id, event_name, start_time, end_time, day FROM event WHERE username='$user'");
 
     return associative($result);  
 }	
@@ -63,8 +61,8 @@ function GetSchedules($username, $semester){
     $id = mysql_fetch_array($id);
     $id = $id{"id"};
 
-    $events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id=$id AND semester=$semester"));
-    $courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id=$id AND semester=$semester"));
+    $events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id=$id AND semester='$semester'"));
+    $courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id=$id AND semester='$semester'"));
 
     $result=array();
     $result{"events"}=$events;
@@ -79,12 +77,12 @@ function GetDepartments(){
 }
 
 function CheckCredentials($username, $password){
-    $result = @query("SELECT * FROM user WHERE username='%s' AND password='%s'",mysql_real_escape_string($username),mysql_real_escape_string($password));
+    $result = query("SELECT * FROM user WHERE username='%s' AND password='%s'",mysql_real_escape_string($username),mysql_real_escape_string($password));
     return (mysql_num_rows($result)) ? true : false;
 }
 
 function RegisterUser($username, $password){	
-    $result = @query("INSERT INTO user VALUES ('%s', '%s')", mysql_real_escape_string($username), mysql_real_escape_string($password));
+    $result = query("INSERT INTO user VALUES ('%s', '%s')", mysql_real_escape_string($username), mysql_real_escape_string($password));
     return ($result) ? true : false;
 }
 
