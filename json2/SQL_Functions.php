@@ -77,12 +77,16 @@ function GetDepartments(){
 }
 
 function CheckCredentials($username, $password){
-    $result = query("SELECT * FROM user WHERE username='%s' AND password='%s'",mysql_real_escape_string($username),mysql_real_escape_string($password));
-    return (mysql_num_rows($result)) ? true : false;
+    db_connect();
+    $result = mysql_query("SELECT * FROM user WHERE username='".mysql_real_escape_string($username)."' AND password='".mysql_real_escape_string($password)."'");
+    mysql_close();
+    return (mysql_num_rows($result) == 1) ? true : false;
 }
 
-function RegisterUser($username, $password){	
+function RegisterUser($username, $password){
+    db_connect();
     $result = query("INSERT INTO user VALUES ('%s', '%s')", mysql_real_escape_string($username), mysql_real_escape_string($password));
+    mysql_close();
     return ($result) ? true : false;
 }
 

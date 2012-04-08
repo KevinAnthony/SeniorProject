@@ -8,8 +8,6 @@ if (isset($_GET["debug"])){
     $username = $_POST["username"];
     $password = $_POST["password"];
 }
-$username = 'kevin';
-$password = 'Inverse';
 if (empty($username) or empty($password)){
     $return_array["success"] = false;
     $return_array["error"] = "Parameters not passed username or password";
