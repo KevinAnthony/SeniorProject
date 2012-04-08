@@ -85,7 +85,7 @@ function CheckCredentials($username, $password){
 
 function RegisterUser($username, $password){
     db_connect();
-    $result = query("INSERT INTO user VALUES ('%s', '%s')", mysql_real_escape_string($username), mysql_real_escape_string($password));
+    $result = query("INSERT INTO user VALUES ('".mysql_real_escape_string($username)."', '".mysql_real_escape_string($password)."')");
     mysql_close();
     return ($result) ? true : false;
 }
