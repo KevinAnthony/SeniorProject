@@ -20,6 +20,12 @@ if (empty($username) or empty($password)){
         $error_message = "SQLERROR: with username or password -- ".mysql_error();
         $return_array["printable_error_message"] = "Invalid Username or Password";
         $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
+    } else {
+        session_destroy();
+        session_start();
+        $_SESSION['Username'] = $username;
+        $return_array['SID']=session_id();
+        setcookie('SID',session_id());
     }
 }
 echo json_encode($return_array);
