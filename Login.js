@@ -34,12 +34,12 @@ function login() {
 };
 
 function register() {
-	var username = $("#username").val();
-	var password = $("#password").val();
+	var username = $("#regUsername").val();
+	var password = $("#regPassword").val();
 	$.ajax({
 		type: "POST",
 		url: "./json/Register.php",
-		data: {"password":password, "username":username},
+		data: {"username":username,"password":password},
 		success: function(data){
  			//$("#loginForm").html("Success!");
  			console.log(data);  
