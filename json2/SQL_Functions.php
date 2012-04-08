@@ -53,7 +53,7 @@ function GetClassTimes($department, $course_number, $semester){
 
 function GetAllCourseNumbers($department, $semester){
     return associative(query("SELECT DISTINCT C.number, D.name, D.description FROM courses C INNER JOIN ".
-                "course_descriptions D ON D.dept = C.dept AND D.number = C.number WHERE C.dept = '$department' and C.semester='$semester'"));
+                "course_description D ON D.dept = C.dept AND D.number = C.number WHERE C.dept = '$department' and C.semester='$semester'"));
 }
 
 function GetSchedules($username, $semester){
