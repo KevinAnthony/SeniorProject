@@ -71,8 +71,8 @@ function GetSchedules($username, $semester){
     return $result;
 }
 
-function GetDepartments(){
-    $result = query("SELECT DISTINCT dept FROM s12_courses ORDER BY dept");
+function GetDepartments($semester){
+    $result = query("SELECT DISTINCT dept FROM courses where semester='$semester' ORDER BY dept");
     return associative($result);
 }
 

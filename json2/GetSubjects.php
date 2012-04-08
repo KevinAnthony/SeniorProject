@@ -9,8 +9,8 @@ if (!$result){
 } else {
     $return_array['number_of_rows'] = 0;
     $data = array();
-    while( $row = array_shift($result)) ){
-        $temp_array = Array("department" => $row['DEPT']);
+    while( $row = array_shift($result)){
+        $temp_array = Array("department" => $row['dept']);
         array_push($data,$temp_array);
         $return_array['number_of_rows']++;
     }
