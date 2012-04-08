@@ -97,23 +97,24 @@ function SaveEvent($event_name, $start, $end, $day, $username){
 }
 
 function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
-
-    query("INSERT INTO schedule (user, schedule_name) VALUES ('$user', '$schedule_name')");
-    $id = query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$schedule_name'");
-    $id = mysql_fetch_array($id);
-    $id = $id{"schedule_id"};
+    db_connect();
+    $escaped_schedule_name = mysql_real_escape_string($schedule_name);
+    mysql_query("INSERT INTO schedule (user, schedule_name) VALUES ('$user', '$escaped_schedule_name')");
+    $result = mysql_query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
+    $row = mysql_fetch_array($result);
+    $id = $row["schedule_id"];
 
     while ($course = array_shift($courses)){
-        $result=query("INSERT INTO schedule_course VALUES ('$semester', '$id', '$course')");
+        $result=mysql_query("INSERT INTO schedule_course VALUES ('$semester', '$id', '$course')");
         if ($result) { continue; } else { return false; }
     }
 
     while ($event = array_shift($events)){
-        $result=query("INSERT INTO schedule_event VALUES ('$semester','$id', '$event')");
-        if ($result) { continue; } else { return false; }
-        $result = query("SELECT * FROM user WHERE username='$username' AND password='$password'");
-        return $result ? true : false;
+        echo "INSERT INTO schedule_event VALUES ('$semester','$id', '$event')<br>";
+        $result=mysql_query("INSERT INTO schedule_event VALUES ('$semester','$id', '$event')");
+        if ($result) { continue; } else { echo "No Here<br>\n";return false; }
     }
+    mysql_close();
 }
 
 function get_event_names ($username){		

@@ -1,16 +1,8 @@
 <?php
 include_once dirname(__FILE__)."/SQL_Functions.php";
 $return_array = Array("success" => true);
-$connection = mysql_connect('sql.njit.edu','ejw3_proj','ozw6OBAO') ;
 $raw_json = $_GET["data"];
 $json_array = json_decode($raw_json,true);
-if (!$connection){
-    $return_array["success"]=false;
-    $error_message = "SQLERROR: Error Connectiong to database -- ".mysql_error();
-    $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
-    echo json_encode($return_array);
-    die();
-}
 if (!isset($json_array['schedule_name'])){
     $return_array["success"]=false;
     $error_message = "no schedule_name field passed";
@@ -45,7 +37,5 @@ if ($return_array["success"] && isset($_COOKIE['SID'])){
     $error_message = "SESSIONERROR: Login Required";
     $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
 }
-mysql_close($connection);
-
 echo json_encode($return_array);
 ?>
