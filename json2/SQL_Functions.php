@@ -57,12 +57,11 @@ function GetAllCourseNumbers($department, $semester){
 }
 
 function GetSchedules($username, $semester){
-    $id = query("SELECT id FROM schedules WHERE user='$username'");
-    $id = mysql_fetch_array($id);
-    $id = $id{"id"};
-
-    $events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id=$id AND semester='$semester'"));
-    $courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id=$id AND semester='$semester'"));
+    $result = query("SELECT schedule_id FROM schedule where user = '$username'");
+    $row = mysql_fetch_array($result);
+    $id = $row["schedule_id"];
+    $events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id=$id"));
+    $courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id=$id"));
 
     $result=array();
     $result{"events"}=$events;
