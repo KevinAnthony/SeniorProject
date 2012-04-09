@@ -47,7 +47,7 @@ function GetEvents($user){
 function GetClassTimes($department, $course_number, $semester){
     $result = query("SELECT * FROM course_times T INNER JOIN courses C on T.crn=C.crn ".
             " WHERE C.dept = '$department' AND C.number = $course_number AND C.semester='$semester'".
-			"ORDER BY T.crn,T.day;");
+            "ORDER BY T.crn,T.day;");
 
     return associative($result);
 }
@@ -55,12 +55,15 @@ function GetClassTimes($department, $course_number, $semester){
 function GetAllCourseNumbers($department, $semester){
     return associative(query("SELECT DISTINCT C.number, D.name, D.description FROM courses C INNER JOIN ".
                 "course_description D ON D.dept = C.dept AND D.number = C.number WHERE C.dept = '$department'".
-				"and C.semester='$semester'"));
+                "and C.semester='$semester'"));
 }
 
 function GetSchedules($username){
     $result = query("SELECT schedule_id FROM schedule where user = '$username'");
     $return = array();
+    if (mysql_num_rows($result) == 0){ 
+        return -1;
+    }
     while( $row = mysql_fetch_assoc($result) ) {
         $id = $row["schedule_id"];
         $events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'"));
@@ -102,25 +105,25 @@ function SaveEvent($event_name, $start, $end, $day, $username){
 function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     db_connect();
     $escaped_schedule_name = mysql_real_escape_string($schedule_name);
-	$result=mysql_query("SELECT id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
-	
-    if (!$result) {
-		mysql_query("INSERT INTO schedule (user, schedule_name) VALUES ('$user', '$escaped_schedule_name')");
-		$result=mysql_query("SELECT MAX(id) FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
-	}
-	
-	$row = mysql_fetch_array($result);
-	$id = $row["schedule_id"];
+    $result=mysql_query("SELECT id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
 
-	mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id' AND crn NOT IN ($courses)");
-	
+    if (!$result) {
+        mysql_query("INSERT INTO schedule (user, schedule_name) VALUES ('$user', '$escaped_schedule_name')");
+        $result=mysql_query("SELECT MAX(id) FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
+    }
+
+    $row = mysql_fetch_array($result);
+    $id = $row["schedule_id"];
+
+    mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id' AND crn NOT IN ($courses)");
+
     while ($course = array_shift($courses)){
         $result=mysql_query("INSERT INTO schedule_course VALUES ('$semester', '$id', '$course')");
         if ($result) { continue; } else { return false; }
     }
 
-	mysql_query("DELETE FROM schedule_event WHERE schedule_id='$id' AND event_id NOT IN ($events)");
-	
+    mysql_query("DELETE FROM schedule_event WHERE schedule_id='$id' AND event_id NOT IN ($events)");
+
     while ($event = array_shift($events)){
         $result=mysql_query("INSERT INTO schedule_event VALUES ('$semester','$id', '$event')");
         if ($result) { continue; } else { echo "No Here<br>\n";return false; }
@@ -151,6 +154,6 @@ function get_dates($semester){
 }
 
 function GetEvent($id){
-	return associative(query("SELECT * FROM event WHERE id='$id'"));
+    return associative(query("SELECT * FROM event WHERE id='$id'"));
 }
 ?>
