@@ -10,7 +10,7 @@ function db_connect(){
 
 function query ($query_str){
     db_connect();
-    
+
     $result=mysql_query($query_str) or die( mysql_error());
     mysql_close();
 
@@ -58,16 +58,18 @@ function GetAllCourseNumbers($department, $semester){
 
 function GetSchedules($username, $semester){
     $result = query("SELECT schedule_id FROM schedule where user = '$username'");
-    $row = mysql_fetch_array($result);
-    $id = $row["schedule_id"];
-    $events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id=$id"));
-    $courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id=$id"));
+    $return = array();
+    while( $row = mysql_fetch_assoc($result) ) {
+        $id = $row["schedule_id"];
+        $events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id=$id"));
+        $courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id=$id"));
 
-    $result=array();
-    $result{"events"}=$events;
-    $result{"courses"}=$courses;
-
-    return $result;
+        $temp_array=array();
+        $temp_array{"events"}=$events;
+        $temp_array{"courses"}=$courses;
+        array_push($return,$temp_array);
+    }
+    return $return;
 }
 
 function GetDepartments($semester){
