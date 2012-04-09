@@ -111,11 +111,11 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     }
 
     while ($event = array_shift($events)){
-        echo "INSERT INTO schedule_event VALUES ('$semester','$id', '$event')<br>";
         $result=mysql_query("INSERT INTO schedule_event VALUES ('$semester','$id', '$event')");
         if ($result) { continue; } else { echo "No Here<br>\n";return false; }
     }
     mysql_close();
+    return true;
 }
 
 function get_event_names ($username){		
