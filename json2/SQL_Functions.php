@@ -148,6 +148,9 @@ function get_dates($semester){
     $dates{"closed"} = $closed;
 
     return $dates;
+}
 
+function GetEvent($id){
+	return associative(query("SELECT * FROM event WHERE id='$id'"));
 }
 ?>
