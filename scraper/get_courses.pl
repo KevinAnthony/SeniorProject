@@ -3,13 +3,12 @@
 use Switch;
 
 sub getPage{
-	
 	$url = shift;
 	$url="\'$url\'";
 	$outFile=shift;
 	$semester=shift;
 	print("Getting $url pages ......\n");
-	system("/usr/bin/php ./scraper.php $url $semester 1 1 > $outFile"); 
+	system("/usr/local/bin/php ./scraper.php $url $semester > $outFile"); 
 	sleep(9);
 	print("Done retrieving $url.\n");
 	
@@ -44,18 +43,17 @@ sub parseSubjects{
 }
 
 sub parseClasses{
-	
 	$file = shift;
-	$_= <$file> while ($_ !~ /<a id=\"ctl10_GridView1_ct.*_lbCourse\"/);
+	#$_= <$file> while ($_ !~ /<a id=\"ctl10_GridView1_ct.*_lbCourse\"/);
 	
 	while (<$file>){
-		next if ($_ !~ /<a id=\"ctl10_GridView1_ctl[0-9]{3}_lbCourse\"/);
+		next if ($_ !~ /<a id=\"ctl10_GridView1_ctl.*_lbCourse\"/);
 		chomp;
 		s/.*\<strong\>(.*)\<\/strong\>/\1/;
 		s/([A-Za-z]{1,5})\s?([0-9]{3}[A-Z]?)/\1  \2/;
-		s/(^R[0-9]{3})\s?([0-9]{3}[A-Z]?)/\1 \2/ if ($_ =~ '^R[0-9]{3}'); 
+		#if ($_ =~ /R[0-9]{3}/) { s/(^R[0-9]{3})\s?([0-9]{3}[A-Z]?)/\1 \2/; } 
 		($subject, $class) = split;
-		push (@classes, $class);
+		push (@classes, $class) if (!($subject =~ /MATH/ && $class =~/E/));
 	}
 	
 	# needed because of special topics courses with same numbers but different names (prevent duplicates)
@@ -106,15 +104,15 @@ sub parseSections{
 	
 	$description =~ s/([\'\"])/\\\1/g; # escape all of the quotes in the description
 	
-	print("Description: $description\n") if ($debug =~ /all/ || $debug =~ /vars/);
+	#print("Description: $description\n") if ($debug =~ /all/ || $debug =~ /vars/);
 				
 	$query = "INSERT IGNORE INTO course_description VALUES (\"".$name."\",\"".$dept."\",\"".$num."\",\"".$description."\");";
-	print("$query\n") if ($debug =~ /all/ || $debug =~ /query/);
+	#print("$query\n") if ($debug =~ /all/ || $debug =~ /query/);
 	system("echo \'$query\' >> courses.txt"); 
 	
 	while ($prereq = shift(@prereqs)){
 		$query = "INSERT IGNORE INTO prerequisites VALUES (\"".$dept."\", \"". $num."\",\"".$prereq."\");";
-		print("$query\n") if ($debug =~ /all/ || $debug =~ /query/);
+		#print("$query\n") if ($debug =~ /all/ || $debug =~ /query/);
 		system("echo \'$query\' >> courses.txt");	
 	}
 				
@@ -246,9 +244,11 @@ print ("Subjects for $semester retrieved ......");
 while ($sub = shift(@subjects)){
 	mkdir "$semester/$sub" unless (-d "$semester/$sub");
 	print("$sub directory created.......");
-	getPage("http://courseschedules.njit.edu/index.aspx?semester=$semester&subjectID=$sub", "./$semester/$sub/courses", $semester) unless (-e "./$semester/$sub/courses");
-	open classFile, "./$semester/$sub/courses" or die $!;
+	$file="./$semester/$sub/courses";
+	getPage("http://courseschedules.njit.edu/index.aspx?semester=$semester&subjectID=$sub", $file, $semester) unless (-e $file);
+	open classFile, $file or die $!;
 	@classes = parseClasses(*classFile);
+	print "@classes";
 	close classFile;
 	print("Class list for $semester  $sub retrieved .....");
 	
