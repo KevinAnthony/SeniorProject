@@ -44,8 +44,8 @@ function GetEvents($user){
     return associative($result);  
 }	
 
-function GetClassTimes($department, $course_number, $semester){
-    $result = query("SELECT * FROM course_times T INNER JOIN courses C on T.crn=C.crn ".
+function GetClassTimes($department, $course_number, $semester){ // fixed join by adding a semester condition
+    $result = query("SELECT * FROM course_times T INNER JOIN courses C on T.crn=C.crn AND T.semester=C.semester".
             " WHERE C.dept = '$department' AND C.number = $course_number AND C.semester='$semester'".
             "ORDER BY T.crn,T.day;");
 
@@ -64,8 +64,10 @@ function GetSchedules($username){
     if (mysql_num_rows($result) == 0){ 
         return -1;
     }
-	$events=array();
-	$courses=array();
+    
+    $events=array();
+    $courses=array();
+    
     while( $row = mysql_fetch_assoc($result) ) {
         $id = $row["schedule_id"];
         array_push($events, associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'")));
@@ -120,7 +122,7 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
 	
 
     while ($course = array_shift($courses)){
-        $result=mysql_query("INSERT INTO schedule_course VALUES ('$semester', '$id', '$course')");
+        $result=mysql_query("INSERT IGNORE INTO schedule_course VALUES ('$semester', '$id', '$course')");
         if ($result || mysql_errno() == 1062 ) { continue; } else { return false; }    # ignore duplicate entry errors
     }
 
@@ -128,7 +130,7 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     mysql_query("DELETE FROM schedule_event WHERE schedule_id='$id' AND event_id NOT IN ($temp)");
 
     while ($event = array_shift($events)){
-        $result=mysql_query("INSERT INTO schedule_event VALUES ('$semester','$id', '$event')");
+        $result=mysql_query("INSERT IGNORE INTO schedule_event VALUES ('$semester','$id', '$event')");
         if ($result || mysql_errno() == 1062) { continue; } else { echo "No Here<br>\n";return false; }
     }
     mysql_close();
@@ -160,8 +162,53 @@ function GetEvent($id){
     return associative(query("SELECT * FROM event WHERE id='$id'"));
 }
 
-function GetPrereq($dept, $course_num){
-	return associative(query("SELECT prerequisite FROM prerequisites WHERE dept='$dept' AND course_num='$course_num'"));
+function GetPrereq($course){
+	return associative(query("SELECT prerequisite FROM prerequisites WHERE course='$course'"));
+}
+
+function GetCourses($constraint_array, $semester){  // UNTESTED (Don't use yet)
+	$query="SELECT * FROM courses NATURAL JOIN course_times WHERE semester='$semester' ";
+	
+	$constraints = array_keys($constraint_array);
+	
+	while ($constraint = array_shift($constraints)){
+		switch ($constraint) {
+			case "start-before":
+				$query .= "AND start_time <'".$constraint_array[$constraint]."' ";
+				break;
+			case "start-after":
+				$query .= "AND start_time >'".$constraint_array[$constraint]."' ";
+				break;
+			case "end-before":
+				$query .= "AND end_time <'".$constraint_array[$constraint]."' ";
+				break;
+			case "end-after":
+				$query .= "AND end_time >'".$constraint_array[$constraint]."' ";
+				break;
+			case "days":
+				$query .= "AND day='".array_shift($constraint_array[$constraint])."' ";
+				while ($day = array_shift($constraint_array[$constraint])){
+					$query .= "OR day='$day' ";
+				}
+				break;
+			case "level":
+				$query .= "AND number REGEXP '^$constraint_array[$constraint]' ";
+				while ($level = array_shift($constraint_array[$constraint])){
+					$query .= "OR number REGEXP '^$level' ";
+				}
+				break;
+			case "dept":
+				$query .= "AND dept='$constraint_array[$constraint]' ";
+				break;
+			case "not-prereqs":
+				while ($prereq = array_shift($constraint_array[$constraints])){
+					$query .= "AND CONCAT(dept," ", num) NOT IN (SELECT course FROM prerequisites WHERE prerequisite REGEXP '$prereq' ";
+				}
+				break;	
+		}
+	}
+	
+	return associative(query($query));
 }
 
 ?>
