@@ -59,15 +59,17 @@ function GetAllCourseNumbers($department, $semester){
 }
 
 function GetSchedules($username){
-    $result = query("SELECT schedule_id FROM schedule where user = '$username'");
+    $result = query("SELECT schedule_id FROM schedule where user='$username'");
     $return = array();
     if (mysql_num_rows($result) == 0){ 
         return -1;
     }
+	$events=array();
+	$courses=array();
     while( $row = mysql_fetch_assoc($result) ) {
         $id = $row["schedule_id"];
-        $events = associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'"));
-        $courses = associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id'"));
+        array_push($events, associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'")));
+        array_push($courses,associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id'")));
 
         $temp_array=array();
         $temp_array{"events"}=$events;
@@ -157,4 +159,9 @@ function get_dates($semester){
 function GetEvent($id){
     return associative(query("SELECT * FROM event WHERE id='$id'"));
 }
+
+function GetPrereq($dept, $course_num){
+	return associative(query("SELECT prerequisite FROM prerequisites WHERE dept='$dept' AND course_num='$course_num'"));
+}
+
 ?>
