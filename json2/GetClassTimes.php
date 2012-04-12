@@ -3,7 +3,11 @@ include_once dirname(__FILE__)."/SQL_Functions.php";
 $return_array = Array("success" => true);
 $course_number = intval($_GET["course_number"]);
 $department = $_GET["department"];
-
+if (empty($_GET['semester'])){
+    $semester = '2012s';
+} else {
+    $semester = $_GET['semester'];
+}
 if (empty($course_number)){
     $return_array["success"] = false;
     $error_message ="VALUEERROR: course_number empty";
@@ -18,7 +22,7 @@ if (!($return_array["success"])){
     echo json_encode($return_array);
     die();
 }
-$result = GetClassTimes($department,$course_number,'2012s');
+$result = GetClassTimes($department,$course_number,$semester);
 if ($result == -1){
     $return_array["success"]=false;
     $error_message = "SQLERROR: No Rows Returned";

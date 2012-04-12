@@ -1,7 +1,12 @@
 <?php
 include_once dirname(__FILE__)."/SQL_Functions.php";
+if (empty($_GET['semester'])){
+     $semester = '2012s';
+     } else {
+          $semester = $_GET['semester'];
+          }
 $return_array = Array("success" => true);
-$result = GetDepartments('2012s');
+$result = GetDepartments($semester);
 if (!$result){
     $return_array["success"]=false;
     $error_message = "SQLERROR:".mysql_error();
