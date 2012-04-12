@@ -48,7 +48,9 @@ function GetClassTimes($department, $course_number, $semester){ // fixed join by
     $result = query("SELECT * FROM course_times T INNER JOIN courses C on T.crn=C.crn AND T.semester=C.semester".
             " WHERE C.dept = '$department' AND C.number = $course_number AND C.semester='$semester'".
             "ORDER BY T.crn,T.day;");
-
+    if (($result) && (mysql_num_rows($result) == 0)){
+        return -1;
+    }
     return associative($result);
 }
 

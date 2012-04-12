@@ -19,14 +19,19 @@ if (!($return_array["success"])){
     die();
 }
 $result = GetClassTimes($department,$course_number,'2012s');
-if (!$result){
+if ($result == -1){
     $return_array["success"]=false;
-    $error_message = "SQLERROR:".mysql_error();
+    $error_message = "SQLERROR: No Rows Returned";
     $return_array["error"] = $error_message;
 } else {
-    $return_array['number_of_rows'] = 0;
-    $data = array();
-    $row = array_shift($result);
+    if (!$result){
+        $return_array["success"]=false;
+        $error_message = "SQLERROR:".mysql_error();
+        $return_array["error"] = $error_message;
+    } else {
+        $return_array['number_of_rows'] = 0;
+        $data = array();
+        $row = array_shift($result);
         while( $row ){
             $i = 0;
             $temp_array = Array("CRN" => $row['crn'], 
@@ -57,9 +62,8 @@ if (!$result){
             array_push($data,$temp_array);
             $return_array['number_of_rows']++;
         }
-    $return_array['data'] = $data;
+        $return_array['data'] = $data;
+    }
 }
-
 echo json_encode($return_array);
-echo "\n";
 ?>
