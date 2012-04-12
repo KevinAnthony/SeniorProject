@@ -30,17 +30,20 @@ if(isset($_COOKIE['SID'])){
                     $event_array = Array();
                     $class_array = Array();
                     while( $row_event = array_shift($event_result) ) {
-                        $temp = Array("schedule_name" =>$row_event["schedule_name"],"event_name"=>$row_event["event_name"],
-                                "start_time"=>$row_event["start_time"],"end_time"=>$row_event["end_time"],"day"=>$row_event["day"]);
-                        array_push($event_array,$temp);
+                        array_push($event_array,Array("schedule_name" =>$row_event["schedule_name"],"event_name"=>$row_event["event_name"],"start_time"=>$row_event["start_time"],"end_time"=>$row_event["end_time"],"day"=>$row_event["day"]));
                     }
                     $row_class = array_shift($course_result);
                     while( $row_class ) {
                         $i=0;
-                        $temp = Array("schedule_name" =>$row_class["schedule_name"],"CRN" => $row_class["crn"],
-                                "department" => $row_class["dept"],"number" => $row_class["number"],"section" => $row_class["section"]
-                                ,"credits" => $row_class["credits"],"instructor" => $row_class["instructor"],
-                                "course_name" => $row_class["course_name"],"course_description" => $row_class["description"]);
+                        $single_class["schedule_name"] =$row_class["schedule_name"];
+                        $single_class["crn"] = $row_class["crn"];
+                        $single_class["department"] = $row_class["dept"];
+                        $single_class["number"] = $row_class["number"];
+                        $single_class["section"] = $row_class["section"];
+                        $single_class["credits"] = $row_class["credits"];
+                        $single_class["instructor"] = $row_class["instructor"];
+                        $single_class["course_name"] = $row_class["course_name"];
+                        $single_class["course_description"] = $row_class["description"];
                         $day = Array();
                         $start_time = Array();
                         $end_time = Array();
@@ -51,7 +54,7 @@ if(isset($_COOKIE['SID'])){
                         $room[$i] = $row_class["room"];
                         $i++;
                         $row_class = array_shift($course_result);
-                        while (($row_class) && $row_class["crn"] == $temp["crn"]){
+                        while (($row_class) && $row_class["crn"] == $single_class["crn"]){
                             $day[$i] = $row_class["day"];
                             $start_time[$i] = $row_class["start_time"];
                             $end_time[$i] = $row_class["end_time"];
@@ -59,11 +62,11 @@ if(isset($_COOKIE['SID'])){
                             $i++;
                             $row_class = array_shift($course_result);
                         }
-                        $temp['day'] = $day;
-                        $temp['start_time'] = $start_time;
-                        $temp['end_time'] = $end_time;
-                        $temp['room'] = $room;
-                        array_push($class_array,$temp);
+                        $single_class['day'] = $day;
+                        $single_class['start_time'] = $start_time;
+                        $single_class['end_time'] = $end_time;
+                        $single_class['room'] = $room;
+                        array_push($class_array,$single_class);
                     }
                     $single_schedual['events'] = $event_array;
                     $single_schedual['courses'] = $class_array;
