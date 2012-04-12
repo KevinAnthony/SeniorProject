@@ -202,7 +202,7 @@ function GetCourses($constraint_array, $semester){  // UNTESTED (Don't use yet)
 				break;
 			case "not-prereqs":
 				while ($prereq = array_shift($constraint_array[$constraints])){
-					$query .= "AND CONCAT(dept," ", num) NOT IN (SELECT course FROM prerequisites WHERE prerequisite REGEXP '$prereq' ";
+					$query .= "AND CONCAT(dept,\" \", num) NOT IN (SELECT course FROM prerequisites WHERE prerequisite REGEXP '$prereq' ";
 				}
 				break;	
 		}
