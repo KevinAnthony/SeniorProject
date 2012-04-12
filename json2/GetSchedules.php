@@ -29,21 +29,14 @@ if(isset($_COOKIE['SID'])){
                     $event_array = Array();
                     $class_array = Array();
                     while( $row_event = array_shift($event_result) ) {
-                        array_push($event_array,Array("schedule_name" =>$row_event["schedule_name"],"event_name"=>$row_event["event_name"],"start_time"=>$row_event["start_time"],"end_time"=>$row_event["end_time"],"day"=>$row_event["day"]));
+                        array_push($event_array,Array("event_name"=>$row_event["event_name"],"start_time"=>$row_event["start_time"],"end_time"=>$row_event["end_time"],"day"=>$row_event["day"]));
+                        $single_schedual['schedule_name'] = $row_event["schedule_name"];
                     }
                     $row_class = array_shift($course_result);
                     while( $row_class ) {
                         $i=0;
-                        $single_class = Array("schedule_name" => $row_class["schedule_name"],"crn"=> $row_class["crn"],"deptartment"=> $row_class["dept"],"number"=> $row_class["number"],"section"=> $row_class["section"],"credits"=> $row_class["credits"],"instructor"=> $row_class["instructor"],"course_name" => $row_class["course_name"],"course_description" => $row_class["description"]);
-                        #$single_class["schedule_name"] =$row_class["schedule_name"];
-                        #$single_class["crn"] = $row_class["crn"];
-                        #$single_class["department"] = $row_class["dept"];
-                        #$single_class["number"] = $row_class["number"];
-                        #$single_class["section"] = $row_class["section"];
-                        #$single_class["credits"] = $row_class["credits"];
-                        #$single_class["instructor"] = $row_class["instructor"];
-                        #$single_class["course_name"] = $row_class["course_name"];
-                        #$single_class["course_description"] = $row_class["description"];
+                        $single_schedual['schedule_name'] = $row_class["schedule_name"];
+                        $single_class = Array("crn"=> $row_class["crn"],"deptartment"=> $row_class["dept"],"number"=> $row_class["number"],"section"=> $row_class["section"],"credits"=> $row_class["credits"],"instructor"=> $row_class["instructor"],"course_name" => $row_class["course_name"],"course_description" => $row_class["description"]);
                         $day = Array();
                         $start_time = Array();
                         $end_time = Array();
