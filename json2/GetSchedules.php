@@ -1,7 +1,6 @@
 <?php
 include_once dirname(__FILE__)."/SQL_Functions.php";
 $return_array = Array("success" => true);
-
 if(isset($_COOKIE['SID'])){
     session_id($_COOKIE['SID']);
     session_start();
