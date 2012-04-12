@@ -1,7 +1,7 @@
 <?php
 include_once dirname(__FILE__)."/SQL_Functions.php";
 $return_array = Array("success" => true);
-$raw_json = $_GET["data"];
+$raw_json = urldecode($_SERVER["QUERY_STRING"]);
 $json_array = json_decode($raw_json,true);
 $courses_raw = $json_array['courses'];
 $events = $json_array['events'];
