@@ -90,12 +90,13 @@ sub parseSections{
 		#do something similar to prereqs
 		
 		$prereq =~ s/Prerequisite(.*?\.).*/\1/;
-		system("echo $prereq >> raw_prerequisites.txt");	
+		#system("echo $prereq >> raw_prerequisites.txt");	
 		$prereq =~ s/(.*?)s?: //;
-		$prereq =~ s/.*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).* and .*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*/\1 and \2/g; #  try to combine this and the next into one
+		$prereq =~ s/.*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).* and .*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*/\1 and \2/g; 
+		$prereq =~ s/.*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*, .*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*/\1 and \2/g;  # separate comma spaced prereqs
 		$prereq =~ s/.*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).* or .*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*/\1 OR \2/g;
 		$prereq =~ s/\.//;
-		push(@prereqs, split('and', $prereq));
+		push(@prereqs, split(' and ', $prereq));
 		print("Prerequisite: $prereq\n");
 	}
 	else {
