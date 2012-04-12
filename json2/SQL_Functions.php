@@ -113,19 +113,21 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
 	$row = mysql_fetch_array($result);
 	$id = $row["schedule_id"];
 
-	mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id' AND crn NOT IN ($courses)");
+	$temp = join(',', $courses);
+	mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id' AND crn NOT IN ($temp)");
 	
 
     while ($course = array_shift($courses)){
         $result=mysql_query("INSERT INTO schedule_course VALUES ('$semester', '$id', '$course')");
-        if ($result) { continue; } else { return false; }
+        if ($result || mysql_errno() == 1062 ) { continue; } else { return false; }    # ignore duplicate entry errors
     }
 
-    mysql_query("DELETE FROM schedule_event WHERE schedule_id='$id' AND event_id NOT IN ($events)");
+	$temp = join(',', $events);
+    mysql_query("DELETE FROM schedule_event WHERE schedule_id='$id' AND event_id NOT IN ($temp)");
 
     while ($event = array_shift($events)){
         $result=mysql_query("INSERT INTO schedule_event VALUES ('$semester','$id', '$event')");
-        if ($result) { continue; } else { echo "No Here<br>\n";return false; }
+        if ($result || mysql_errno() == 1062) { continue; } else { echo "No Here<br>\n";return false; }
     }
     mysql_close();
     return true;
