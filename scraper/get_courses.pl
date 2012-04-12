@@ -8,7 +8,7 @@ sub getPage{
 	$outFile=shift;
 	$semester=shift;
 	print("Getting $url pages ......\n");
-	system("/usr/local/bin/php ./scraper.php $url $semester > $outFile"); 
+	system("/usr/bin/php ./scraper.php $url $semester > $outFile"); 
 	sleep(9);
 	print("Done retrieving $url.\n");
 	
@@ -50,10 +50,10 @@ sub parseClasses{
 		next if ($_ !~ /<a id=\"ctl10_GridView1_ctl.*_lbCourse\"/);
 		chomp;
 		s/.*\<strong\>(.*)\<\/strong\>/\1/;
-		s/([A-Za-z]{1,5})\s?([0-9]{3}[A-Z]?)/\1  \2/;
-		#if ($_ =~ /R[0-9]{3}/) { s/(^R[0-9]{3})\s?([0-9]{3}[A-Z]?)/\1 \2/; } 
+		if ($_ =~ /R[0-9]{3}/) { s/(^R[0-9]{3})\s?([0-9]{3}[A-Z]?)/\1 \2/; } 
+		else { s/([A-Za-z]{1,5})\s?([0-9]{3}[A-Z]?)/\1  \2/; }
 		($subject, $class) = split;
-		push (@classes, $class) if (!($subject =~ /MATH/ && $class =~/E/));
+		push (@classes, $class);
 	}
 	
 	# needed because of special topics courses with same numbers but different names (prevent duplicates)
@@ -111,7 +111,7 @@ sub parseSections{
 	system("echo \'$query\' >> courses.txt"); 
 	
 	while ($prereq = shift(@prereqs)){
-		$query = "INSERT IGNORE INTO prerequisites VALUES (\"".$dept."\", \"". $num."\",\"".$prereq."\");";
+		$query = "INSERT IGNORE INTO prerequisites VALUES (\"".$dept." ".$num."\",\"".uc($prereq)."\");";
 		#print("$query\n") if ($debug =~ /all/ || $debug =~ /query/);
 		system("echo \'$query\' >> courses.txt");	
 	}
@@ -180,7 +180,7 @@ sub parseSections{
 			$end_time =~ s/^0//;
 			$end_hours = ($end_time =~ /PM/ && $end_time < 1159) ? 12 : 0;
 			$end_time =~ s/[AP]M//;
-			$end_minutes = $end_minutes % 100;
+			$end_minutes = $end_time % 100;
 			$end_hours += ($end_time - $end_minutes) /100;
 			$end_time = ($end_hours * 60 ) + $end_minutes;
 			print ("End Time: $end_time\n") if ($debug =~ /all/ || $debug =~ /vars/);
