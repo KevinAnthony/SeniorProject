@@ -105,12 +105,10 @@ function SaveEvent($event_name, $start, $end, $day, $username){
 function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     db_connect();
     $escaped_schedule_name = mysql_real_escape_string($schedule_name);
-	$result=mysql_query("SELECT schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
+
+	mysql_query("INSERT IGNORE INTO schedule (user, schedule_name) VALUES ('$user', '$escaped_schedule_name')");
+	$result=mysql_query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
 	
-	if (!$result) {
-		mysql_query("INSERT INTO schedule (user, schedule_name) VALUES ('$user', '$escaped_schedule_name')");
-		$result=mysql_query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
-	}
 	
 	$row = mysql_fetch_array($result);
 	$id = $row["schedule_id"];
