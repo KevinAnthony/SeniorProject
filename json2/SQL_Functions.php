@@ -21,7 +21,7 @@ function associative($result){
 
     $rows = array();
 
-    while ($row = mysql_fetch_array($result)){
+    while ($row = mysql_fetch_assoc($result)){
         array_push($rows, $row);	
     }
 
@@ -67,13 +67,14 @@ function GetSchedules($username){
         return -1;
     }
     
-    $events=array();
-    $courses=array();
     
     while( $row = mysql_fetch_assoc($result) ) {
         $id = $row["schedule_id"];
+        $events=array();
+        $courses=array();
+        
         array_push($events, associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'")));
-        array_push($courses,associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id'")));
+        array_push($courses,associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' order by crn")));
 
         $temp_array=array();
         $temp_array{"events"}=$events;

@@ -12,6 +12,7 @@ if(isset($_COOKIE['SID'])){
     session_start();
     if(isset($_SESSION['Username'])){
         $result = GetSchedules($_SESSION['Username'],$semester);
+        $result = GetSchedules("ehtest3000",$semester);
         $schedules = Array();
         if ($result == -1){
             $return_array['number_of_schedules'] = 0;
@@ -54,6 +55,10 @@ if(isset($_COOKIE['SID'])){
                         $i++;
                         $row_class = array_shift($course_result);
                         while (($row_class) && $row_class["crn"] == $single_class["crn"]){
+                            if (in_array($row_class["day"],$day)){
+                                $row_class = array_shift($course_result);
+                                continue;
+                            }
                             $day[$i] = $row_class["day"];
                             $start_time[$i] = $row_class["start_time"];
                             $end_time[$i] = $row_class["end_time"];
