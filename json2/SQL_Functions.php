@@ -40,12 +40,14 @@ function DeleteEvent($id){
 }	
 
 function DeleteSchedule($user, $schedule_name){
-	$id=query("SELECT schedule_id FROM schedule WHERE user='$user' AND schedule_name='$schedule_name'");
+	db_connect();
+	$schedule_name=mysql_real_escape_string($schedule_name);
+	$id=mysql_query("SELECT schedule_id FROM schedule WHERE user='$user' AND schedule_name='$schedule_name'");
 	if (mysql_num_rows($id) == 0 || (!$id)) { return false; }  // error or schedule doesn't exist
 	$id=mysql_fetch_array($id);
 	$id=$id["schedule_id"];
 	
-	$result=query("DELETE FROM schedule WHERE user='$user' AND schedule_name='$schedule_name'");
+	$result=mysql_query("DELETE FROM schedule WHERE user='$user' AND schedule_name='$schedule_name'");
 	query("DELETE FROM schedule_course WHERE schedule_id='$id'");  // only until foreign key constraints decide to start working
 	query("DELETE FROM schedule_event WHERE schedule_id ='$id'");
 	
