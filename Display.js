@@ -31,17 +31,25 @@ function addToSchedule(schedule, addFrom, CRN, eventToggle, display){
 			return;
 		}
 	}
-	
+	//add check against events
 	for(i=0; i < schedule.onSchedule.length; i++){
 		for(j=0; j < schedule.onSchedule[i].day.length && flagCheck; j++){
 			for(k=0; k < toAdd.day.length && flagCheck; k++){
 				if(toAdd.day[k] == schedule.onSchedule[i].day[j]){
-					if(toAdd.start_time[k] >= schedule.onSchedule[i].start_time[j] && toAdd.start_time[k] <= schedule.onSchedule[i].end_time[j])
-						flagCheck = false;
+					//add to avoid conflict +class vs event
+					if(schedule.onSchedule[i].event_name == undefined && toAdd.event_name == undefined){
+						if(toAdd.start_time[k] >= schedule.onSchedule[i].start_time[j] && toAdd.start_time[k] <= schedule.onSchedule[i].end_time[j])
+							flagCheck = false;
 						
-					if(toAdd.end_time[k] >= schedule.onSchedule[i].start_time[j] && toAdd.end_time[k] <= schedule.onSchedule[i].end_time[j])
-						flagCheck = false;
-					
+						if(toAdd.end_time[k] >= schedule.onSchedule[i].start_time[j] && toAdd.end_time[k] <= schedule.onSchedule[i].end_time[j])
+							flagCheck = false;
+					} else {
+						if(toAdd.start_time[k] >= schedule.onSchedule[i].start_time && toAdd.start_time[k] <= schedule.onSchedule[i].end_time)
+							flagCheck = false;
+						
+						if(toAdd.end_time[k] >= schedule.onSchedule[i].start_time && toAdd.end_time[k] <= schedule.onSchedule[i].end_time)
+							flagCheck = false;
+					}
 				}
 			}
 		}

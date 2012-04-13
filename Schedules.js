@@ -65,6 +65,46 @@ function showSchedule(scheduleNumber){
 };
 
 
+function saveSchedule(){
+	var elist = "";
+	var clist = "";
+	var scheduleName = "One More!";
+	var i;
+	
+	for(i=0; i < currentSchedule.onSchedule.length; i++){
+		if(currentSchedule.onSchedule[i].CRN != undefined){
+			if(clist != "")
+				clist += ", "
+			clist += currentSchedule.onSchedule[i].CRN;
+		} else {
+			if(elist != "")
+				elist += ", "
+			elist += currentSchedule.onSchedule[i].id;
+		}
+	}
+	//multi save?
+	$.ajax({
+		type: "POST",
+		url: "./json/SaveSchedule.php?{\"schedule_name\":\""+ scheduleName +"\",\"courses\":["+ clist +"], \"events\":["+ elist +"]}",
+		success: function(data){
+			delete schedules;
+			schedules = [];
+			
+			var scheduleLayer = new Kinetic.Layer();
+			var textLayer = new Kinetic.Layer();
+			var newschedule = {"sname":"New","textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
+			
+			schedules.push(newschedule);
+			currentSchedule = schedules[0];
+			
+			loadSchedules();
+		},
+		error: function(){
+		  console.log(data);
+		}
+	});
+};
+
 
 
 
