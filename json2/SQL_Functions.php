@@ -35,23 +35,23 @@ function associative($result){
 /* QUERIES */	
 function DeleteEvent($id){
     $result=query("DELETE FROM event WHERE ID=$id");	// Return true or false if attempt to delete event that doesn't exist? true
-	query("DELETE FROM schedule_event WHERE event_id='$id'");  // only until foreign key constraints decide to start working
+    query("DELETE FROM schedule_event WHERE event_id='$id'");  // only until foreign key constraints decide to start working
     return $result ? true : false;
 }	
 
 function DeleteSchedule($user, $schedule_name){
-	db_connect();
-	$escaped_schedule_name=mysql_real_escape_string($schedule_name);
-	$id=mysql_query("SELECT schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
+    db_connect();
+    $escaped_schedule_name=mysql_real_escape_string($schedule_name);
+    $id=mysql_query("SELECT schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
     if (mysql_num_rows($id) == 0 || (!$id)) { return false; }  // error or schedule doesn't exist
-	$id=mysql_fetch_array($id);
-	$id=$id["schedule_id"];
-	
-	$result=mysql_query("DELETE FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
-	mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id'");  // only until foreign key constraints decide to start working
-	mysql_query("DELETE FROM schedule_event WHERE schedule_id ='$id'");
-	
-	return ($result && mysql_num_rows($result) > 0 ) ? true : false;  // return false if error or if schedule doesn't exist
+    $id=mysql_fetch_array($id);
+    $id=$id["schedule_id"];
+
+    $result=mysql_query("DELETE FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
+    mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id'");  // only until foreign key constraints decide to start working
+    mysql_query("DELETE FROM schedule_event WHERE schedule_id ='$id'");
+
+    return ($result && mysql_num_rows($result) > 0 ) ? true : false;  // return false if error or if schedule doesn't exist
 }
 
 function GetEvents($user){
@@ -82,13 +82,12 @@ function GetSchedules($username){
     if (mysql_num_rows($result) == 0){ 
         return -1;
     }
-    
-    
+
     while( $row = mysql_fetch_assoc($result) ) {
         $id = $row["schedule_id"];
         $events=array();
         $courses=array();
-        
+
         array_push($events, associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'")));
         array_push($courses,associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' order by crn")));
 
@@ -100,6 +99,12 @@ function GetSchedules($username){
     return $return;
 }
 
+function GetSchedule($username,$id){
+    $return=array();
+    $return{"events"}=associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'"));
+    $return{"courses"}=associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' order by crn"));
+    return $return;
+}
 function GetDepartments($semester){
     $result = query("SELECT DISTINCT dept FROM courses where semester='$semester' ORDER BY dept");
     return associative($result);
@@ -129,28 +134,28 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     db_connect();
     $escaped_schedule_name = mysql_real_escape_string($schedule_name);
 
-	mysql_query("INSERT IGNORE INTO schedule (user, schedule_name) VALUES ('$user', '$escaped_schedule_name')");
-	$result=mysql_query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
-	
-	
-	$row = mysql_fetch_array($result);
-	$id = $row["schedule_id"];
+    mysql_query("INSERT IGNORE INTO schedule (user, schedule_name) VALUES ('$user', '$escaped_schedule_name')");
+    $result=mysql_query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
 
-	$temp = join(',', $courses);
-	mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id' AND crn NOT IN ($temp)");
-	
+
+    $row = mysql_fetch_array($result);
+    $id = $row["schedule_id"];
+
+    $temp = join(',', $courses);
+    mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id' AND crn NOT IN ($temp)");
+
 
     while ($course = array_shift($courses)){
         $result=mysql_query("INSERT IGNORE INTO schedule_course VALUES ('$semester', '$id', '$course')");
         if ($result || mysql_errno() == 1062 ) { continue; } else { return false; }    # ignore duplicate entry errors
     }
 
-	$temp = join(',', $events);
+    $temp = join(',', $events);
     mysql_query("DELETE FROM schedule_event WHERE schedule_id='$id' AND event_id NOT IN ($temp)");
 
     while ($event = array_shift($events)){
         $result=mysql_query("INSERT IGNORE INTO schedule_event VALUES ('$semester','$id', '$event')");
-        if ($result || mysql_errno() == 1062) { continue; } else { echo "No Here<br>\n";return false; }
+        if ($result || mysql_errno() == 1062) { continue; } else { return false; }
     }
     mysql_close();
     return true;
@@ -182,52 +187,52 @@ function GetEvent($id){
 }
 
 function GetPrereq($course){
-	return associative(query("SELECT prerequisite FROM prerequisites WHERE course='$course'"));
+    return associative(query("SELECT prerequisite FROM prerequisites WHERE course='$course'"));
 }
 
 function GetCourses($constraint_array, $semester){  // UNTESTED (Don't use yet)
-	$query="SELECT * FROM courses NATURAL JOIN course_times WHERE semester='$semester' ";
-	
-	$constraints = array_keys($constraint_array);
-	
-	while ($constraint = array_shift($constraints)){
-		switch ($constraint) {
-			case "start-before":
-				$query .= "AND start_time <'".$constraint_array[$constraint]."' ";
-				break;
-			case "start-after":
-				$query .= "AND start_time >'".$constraint_array[$constraint]."' ";
-				break;
-			case "end-before":
-				$query .= "AND end_time <'".$constraint_array[$constraint]."' ";
-				break;
-			case "end-after":
-				$query .= "AND end_time >'".$constraint_array[$constraint]."' ";
-				break;
-			case "days":
-				$query .= "AND day='".array_shift($constraint_array[$constraint])."' ";
-				while ($day = array_shift($constraint_array[$constraint])){
-					$query .= "OR day='$day' ";
-				}
-				break;
-			case "level":
-				$query .= "AND number REGEXP '^$constraint_array[$constraint]' ";
-				while ($level = array_shift($constraint_array[$constraint])){
-					$query .= "OR number REGEXP '^$level' ";
-				}
-				break;
-			case "dept":
-				$query .= "AND dept='$constraint_array[$constraint]' ";
-				break;
-			case "not-prereqs":
-				while ($prereq = array_shift($constraint_array[$constraints])){
-					$query .= "AND CONCAT(dept,\" \", num) NOT IN (SELECT course FROM prerequisites WHERE prerequisite REGEXP '$prereq' ";
-				}
-				break;	
-		}
-	}
-	
-	return associative(query($query));
+    $query="SELECT * FROM courses NATURAL JOIN course_times WHERE semester='$semester' ";
+
+    $constraints = array_keys($constraint_array);
+
+    while ($constraint = array_shift($constraints)){
+        switch ($constraint) {
+            case "start-before":
+                $query .= "AND start_time <'".$constraint_array[$constraint]."' ";
+                break;
+            case "start-after":
+                $query .= "AND start_time >'".$constraint_array[$constraint]."' ";
+                break;
+            case "end-before":
+                $query .= "AND end_time <'".$constraint_array[$constraint]."' ";
+                break;
+            case "end-after":
+                $query .= "AND end_time >'".$constraint_array[$constraint]."' ";
+                break;
+            case "days":
+                $query .= "AND day='".array_shift($constraint_array[$constraint])."' ";
+                while ($day = array_shift($constraint_array[$constraint])){
+                    $query .= "OR day='$day' ";
+                }
+                break;
+            case "level":
+                $query .= "AND number REGEXP '^$constraint_array[$constraint]' ";
+                while ($level = array_shift($constraint_array[$constraint])){
+                    $query .= "OR number REGEXP '^$level' ";
+                }
+                break;
+            case "dept":
+                $query .= "AND dept='$constraint_array[$constraint]' ";
+                break;
+            case "not-prereqs":
+                while ($prereq = array_shift($constraint_array[$constraints])){
+                    $query .= "AND CONCAT(dept,\" \", num) NOT IN (SELECT course FROM prerequisites WHERE prerequisite REGEXP '$prereq' ";
+                }
+                break;	
+        }
+    }
+
+    return associative(query($query));
 }
 
 ?>
