@@ -2,6 +2,12 @@
 include_once dirname(__FILE__)."/SQL_Functions.php";
 $return_array = Array("success" => true);
 $department = $_GET["department"];
+if (empty($_GET['semester'])){
+    $semester = '2012s';
+} else {
+    $semester = $_GET['semester'];
+}
+
 if (empty($department)){
     $return_array["success"] = false;
     $return_array["error"] ="VALUEERROR: department empty";
@@ -9,7 +15,7 @@ if (empty($department)){
     die();
 }
 
-$result = GetAllCourseNumbers($department,'2012s');
+$result = GetAllCourseNumbers($department,$semester);
 if (!$result){
     $return_array["success"]=false;
     $error_message = "SQLERROR:".mysql_error();

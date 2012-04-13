@@ -540,23 +540,29 @@ function logout() {
 //save event
 //retrieve events
 //custom event on schedule
+//multiple sched
 
 //To Do=======================
-//multiple sched
 //save sched
-//mouseover
+//add loadSchedules to login
+	//check login at start?
 
+//block text overflow
+//give error messages
+//constraint checking on all input (times)
 //conf pass on reg
 //something happen on login
-
-//red conflict on course/event selection (?)
 //height of selection
 
-//schedule predictor
-
+//mouseover
 //(highlight same crn? mouseovers?)
 
+//red conflict on course/event selection (?)
+
 //selection drop down
+
 //njit logo
 //colors
+
+//schedule predictor
 //minify

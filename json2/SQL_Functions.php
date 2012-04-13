@@ -21,7 +21,7 @@ function associative($result){
 
     $rows = array();
 
-    while ($row = mysql_fetch_array($result)){
+    while ($row = mysql_fetch_assoc($result)){
         array_push($rows, $row);	
     }
 
@@ -62,7 +62,9 @@ function GetClassTimes($department, $course_number, $semester){ // fixed join by
     $result = query("SELECT * FROM course_times T INNER JOIN courses C on T.crn=C.crn AND T.semester=C.semester".
             " WHERE C.dept = '$department' AND C.number = $course_number AND C.semester='$semester'".
             "ORDER BY T.crn,T.day;");
-
+    if (($result) && (mysql_num_rows($result) == 0)){
+        return -1;
+    }
     return associative($result);
 }
 
@@ -79,13 +81,14 @@ function GetSchedules($username){
         return -1;
     }
     
-    $events=array();
-    $courses=array();
     
     while( $row = mysql_fetch_assoc($result) ) {
         $id = $row["schedule_id"];
+        $events=array();
+        $courses=array();
+        
         array_push($events, associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'")));
-        array_push($courses,associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id'")));
+        array_push($courses,associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' order by crn")));
 
         $temp_array=array();
         $temp_array{"events"}=$events;
@@ -216,7 +219,7 @@ function GetCourses($constraint_array, $semester){  // UNTESTED (Don't use yet)
 				break;
 			case "not-prereqs":
 				while ($prereq = array_shift($constraint_array[$constraints])){
-					$query .= "AND CONCAT(dept," ", num) NOT IN (SELECT course FROM prerequisites WHERE prerequisite REGEXP '$prereq' ";
+					$query .= "AND CONCAT(dept,\" \", num) NOT IN (SELECT course FROM prerequisites WHERE prerequisite REGEXP '$prereq' ";
 				}
 				break;	
 		}
