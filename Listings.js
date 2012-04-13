@@ -3,7 +3,6 @@ var courses = {};
 var events = {};
 var sections = [];
 var descriptions = [];
-var schedule = [];
 
 
 function loadSections(value) {
@@ -12,7 +11,12 @@ function loadSections(value) {
 		$.getJSON("./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value,
 		 function (text) {
 				var i;
-			
+				
+				if(text.data == undefined) {
+					document.getElementById("sectionTable").innerHTML="";
+					return;
+				}
+				
 				if(value > -1)
 					var list = "<tr><td colspan=\"5\" id=\"description\">" + descriptions[value] + "</td></tr>";
 
@@ -36,7 +40,7 @@ function loadSections(value) {
 						times += pixelsToTime(text.data[i].start_time[j]) + " - " + pixelsToTime(text.data[i].end_time[j]) + "<br>";
 					}
 								
-					list += "<tr><td>" + classy.CRN + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.instructor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule("+ classy.CRN +",0)\">Add / Remove</button></td></tr>";
+					list += "<tr><td>" + classy.CRN + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.instructor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, courses, "+ classy.CRN +",0, true)\">Add / Remove</button></td></tr>";
 		    		sections[i] = classy.CRN;
 				
 					courses[classy.CRN] = classy;	        		
@@ -143,7 +147,7 @@ function loadClasses() {
 					times += pixelsToTime(text.data[i].start_time) + " - " + pixelsToTime(text.data[i].end_time) + "<br>";
 					
 								
-					list += "<tr><td>" + eventName + "</td><td>" + day + "</td><td>" + times + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(\'"+ text.data[i].id + text.data[i].event_name + "\',1)\">Add / Remove</button></td></tr>";
+					list += "<tr><td>" + eventName + "</td><td>" + day + "</td><td>" + times + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, events,\'"+ text.data[i].id + text.data[i].event_name + "\',1, true)\">Add / Remove</button></td></tr>";
 				
 					events[""+text.data[i].id + text.data[i].event_name] = text.data[i];	        		
 		    	}
@@ -152,8 +156,10 @@ function loadClasses() {
 					form += list;
 
 			} else {
-				list = "Please log in for this functionality.";
-				form = list;
+				if(!text.success && (text.error == "SESSIONERROR: Session Expired" || text.error == "SESSIONERROR: Login Required")) {
+					list = "Please log in for this functionality.";
+					form = list;
+				}
 			}
 			
 			$("#sectionTable").html(form);

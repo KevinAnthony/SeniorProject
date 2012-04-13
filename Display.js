@@ -1,49 +1,45 @@
-var onSchedule = [];
 
-function addToSchedule(CRN,eventToggle){
+
+function addToSchedule(schedule, addFrom, CRN, eventToggle, display){
 	var toAdd;
 	var eID = CRN; 
 	
-	if(eventToggle == 0) {		//item to add
-		toAdd = courses[CRN];
-	} else {
-		toAdd = events[eID];
-	}
+	toAdd = addFrom[CRN];
 	
 	var i, j, k;
 	var flagCheck = true;
 	
-	for(i=0; i < onSchedule.length; i++){
+	for(i=0; i < schedule.onSchedule.length; i++){
 		var check;
 		
 		if(eventToggle == 0) {
-			check = (CRN == onSchedule[i].CRN);
+			check = (CRN == schedule.onSchedule[i].CRN);
 		} else {
-			check = (eID == (onSchedule[i].id + onSchedule[i].event_name));
+			check = (eID == (schedule.onSchedule[i].id + schedule.onSchedule[i].event_name));
 		}
 		
 		if(check){
 			console.log("Already on Schedule.");
-			for(j=0; j < onSchedule[i].shapeLayer.length; j++){
-				scheduleLayer.remove(onSchedule[i].shapeLayer[j]);
-				textLayer.remove(onSchedule[i].textLayer[j]);
+			for(j=0; j < schedule.onSchedule[i].shapeLayer.length; j++){
+				schedule.scheduleLayer.remove(schedule.onSchedule[i].shapeLayer[j]);
+				schedule.textLayer.remove(schedule.onSchedule[i].textLayer[j]);
 			}
-			stage.add(scheduleLayer);
-			stage.add(textLayer);
+			stage.add(schedule.scheduleLayer);
+			stage.add(schedule.textLayer);
 			
-			onSchedule.splice(i,1);
+			schedule.onSchedule.splice(i,1);
 			return;
 		}
 	}
 	
-	for(i=0; i < onSchedule.length; i++){
-		for(j=0; j < onSchedule[i].day.length && flagCheck; j++){
+	for(i=0; i < schedule.onSchedule.length; i++){
+		for(j=0; j < schedule.onSchedule[i].day.length && flagCheck; j++){
 			for(k=0; k < toAdd.day.length && flagCheck; k++){
-				if(toAdd.day[k] == onSchedule[i].day[j]){
-					if(toAdd.start_time[k] >= onSchedule[i].start_time[j] && toAdd.start_time[k] <= onSchedule[i].end_time[j])
+				if(toAdd.day[k] == schedule.onSchedule[i].day[j]){
+					if(toAdd.start_time[k] >= schedule.onSchedule[i].start_time[j] && toAdd.start_time[k] <= schedule.onSchedule[i].end_time[j])
 						flagCheck = false;
 						
-					if(toAdd.end_time[k] >= onSchedule[i].start_time[j] && toAdd.end_time[k] <= onSchedule[i].end_time[j])
+					if(toAdd.end_time[k] >= schedule.onSchedule[i].start_time[j] && toAdd.end_time[k] <= schedule.onSchedule[i].end_time[j])
 						flagCheck = false;
 					
 				}
@@ -65,14 +61,14 @@ function addToSchedule(CRN,eventToggle){
 		for(i=0; i < toAdd.day.length; i++){
 			var dayText = text.slice(0);
 			dayText.push(toAdd.room[i] + " " + pixelsToTime(toAdd.start_time[i]) + " - " + pixelsToTime(toAdd.end_time[i]));
-			both = addBlock(scheduleLayer, textLayer, dayText, toAdd.day[i], toAdd.start_time[i], toAdd.end_time[i]);
+			both = addBlock(schedule.scheduleLayer, schedule.textLayer, dayText, toAdd.day[i], toAdd.start_time[i], toAdd.end_time[i], display);
 
 			shapes.push(both[0]);
 			texts.push(both[1]);
 		}
 		toAdd.shapeLayer = shapes;
 		toAdd.textLayer = texts;
-		onSchedule.push(toAdd);
+		schedule.onSchedule.push(toAdd);
 	} else if(flagCheck && (eventToggle == 1)){
 		var text = [];
 		var shapes = [];
@@ -83,21 +79,21 @@ function addToSchedule(CRN,eventToggle){
 	
 		var dayText = text.slice(0);
 		dayText.push(pixelsToTime(toAdd.start_time) + " - " + pixelsToTime(toAdd.end_time));
-		both = addBlock(scheduleLayer, textLayer, dayText, toAdd.day, toAdd.start_time, toAdd.end_time);
+		both = addBlock(schedule.scheduleLayer, schedule.textLayer, dayText, toAdd.day, toAdd.start_time, toAdd.end_time, display);
 
 		shapes.push(both[0]);
 		texts.push(both[1]);
 
 		toAdd.shapeLayer = shapes;
 		toAdd.textLayer = texts;
-		onSchedule.push(toAdd);
+		schedule.onSchedule.push(toAdd);
 	} else {
 		console.log("Scheduling Conflict");
 	}
 };
 
 //start_time, end_time in minutes
-function addBlock(scheduleLayer, textLayer, dayText, day, start_time, end_time){	//generates a rectangle of specified dimensions
+function addBlock(scheduleLayer, textLayer, dayText, day, start_time, end_time, display){	//generates a rectangle of specified dimensions
 	var tX = DayToPixels(parseInt(day));
 	var tY = TimeToPixels(parseInt(start_time));
 	
@@ -138,8 +134,10 @@ function addBlock(scheduleLayer, textLayer, dayText, day, start_time, end_time){
 	scheduleLayer.add(block);
 	textLayer.add(blockText);	
 	//scheduleLayer.add(text);
-	stage.add(scheduleLayer);
-	stage.add(textLayer);
+	if(display) {
+		stage.add(scheduleLayer);
+		stage.add(textLayer);
+	}
 	
 	return [block, blockText];
 };

@@ -4,8 +4,14 @@ var offset;
 var start_of_day;
 var scheduleLayer = new Kinetic.Layer();
 var textLayer = new Kinetic.Layer();
+var schedules = [];
+var currentSchedule;
 
 $(document).ready(function(){
+	var newschedule = {"sname":"New","textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
+	schedules.push(newschedule);
+	currentSchedule = schedules[0];
+	
 	start_of_day = 510;
 	wInner = window.innerWidth - 30;
     stage = new Kinetic.Stage("cont", wInner, 1100);
