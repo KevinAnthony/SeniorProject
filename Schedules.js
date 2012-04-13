@@ -68,7 +68,7 @@ function showSchedule(scheduleNumber){
 function saveSchedule(){
 	var elist = "";
 	var clist = "";
-	var scheduleName = "One More!";
+	var scheduleName = "Last Test!";
 	var i;
 	
 	for(i=0; i < currentSchedule.onSchedule.length; i++){
@@ -83,20 +83,26 @@ function saveSchedule(){
 		}
 	}
 	//multi save?
+	//check others unsaved
 	$.ajax({
 		type: "POST",
 		url: "./json/SaveSchedule.php?{\"schedule_name\":\""+ scheduleName +"\",\"courses\":["+ clist +"], \"events\":["+ elist +"]}",
 		success: function(data){
-			delete schedules;
-			schedules = [];
+			if(currentSchedule.sname == "New"){
+				stage.remove(schedules[0].textLayer);
+				stage.remove(schedules[0].scheduleLayer);
+				delete schedules;
+				schedules = [];
 			
-			var scheduleLayer = new Kinetic.Layer();
-			var textLayer = new Kinetic.Layer();
-			var newschedule = {"sname":"New","textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
+				var scheduleLayer = new Kinetic.Layer();
+				var textLayer = new Kinetic.Layer();
+				var newschedule = {"sname":"New","textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
 			
-			schedules.push(newschedule);
-			currentSchedule = schedules[0];
-			
+				schedules.push(newschedule);
+				currentSchedule = schedules[0];
+			} else {
+				//somethingsomethingsomething
+			}
 			loadSchedules();
 		},
 		error: function(){

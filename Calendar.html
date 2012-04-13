@@ -4,11 +4,11 @@
 	<LINK href="Cal.css" rel="stylesheet" type="text/css">
     <script src="kinetic-v3.6.4.js"></script>
     <script type="text/javascript" src="jquery-1.7.1.min.js"></script>  
-    <script src="Load.js"></script>
     <script src="Listings.js"></script>
     <script src="Display.js"></script>
     <script src="Login.js"></script>
     <script src="Schedules.js"></script>
+    <script src="Load.js"></script>
     <script>
     //to do
     	//section listing
@@ -24,12 +24,6 @@
 	<div id="slideParent">
 		<div id="slider">
 			 <div>
-				<form id='logout' action="javascript:logout()" method='post' accept-charset='UTF-8'>
-					<!--fieldset-->
-					<input type="submit" name="Submit" value="logout"/>
-					<!--/fieldset-->
-			  	</form>
-			  	<br />
 		  		<form id="loginForm" action="javascript:login()" method="post" accept-charset='UTF-8'>
 					<!--fieldset>
 		  			<input type='hidden' name='submitted' id='submitted' value='1'/-->
@@ -38,7 +32,15 @@
 						<input type="text" name="username" id="username" maxlength="32"/><br/>
 					<label for="password">Password:</label><br/>
 						<input type="password" name="password" id="password" maxlength="32"/><br/>
-					<input type="submit" name="Submit" value="login"/>
+					<input type="submit" name="Submit" value="login"/><br/>
+			  	</form>
+			  	<form id="lineBreaks"><br/></form>
+			  	<br/>
+			  	<label id="logField"></label>
+			  	<br />
+			  	<form id='logout' action="javascript:logout()" method='post' accept-charset='UTF-8'>
+					<!--fieldset-->
+					<input type="submit" name="Submit" value="logout"/>
 					<!--/fieldset-->
 			  	</form>
 			</div>
@@ -50,7 +52,7 @@
 				  		<dt>
 				  	</tr>
 			  	</table>
-			  	<br/><br/>
+			  	
 			  	<h1>REGISTER</h1>
 			  	<form id='register' action="javascript:register()" method='post' accept-charset='UTF-8'>
 					<!--fieldset-->
@@ -59,10 +61,14 @@
 						<input type="text" name="username" id="regUsername" maxlength="32"/><br/>
 					<label for="password">Password:</label><br/>
 						<input type="password" name="password" id="regPassword" maxlength="32"/><br/>
+					<label for="password">Confirm Password:</label><br/>
+						<input type="password" name="confPassword" id="confPassword" maxlength="32"/><br/>
 					<input type="submit" name="Submit" value="register"/>
 					<!--/fieldset-->
 			  	</form><!--br/><br/>
 			  	<a href="" onClick="" id="register">Click here to register.</a-->
+			  	<br/>
+			  	<label id="logFieldReg"></label>
 			 </div>
 		</div>
 		

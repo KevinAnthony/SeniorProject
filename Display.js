@@ -64,7 +64,11 @@ function addToSchedule(schedule, addFrom, CRN, eventToggle, display){
 		var both = [];
 		
 		text.push(toAdd.cname);
-		text.push("(" + toAdd.CRN + ")");
+		
+		if(toAdd.CRN != undefined)
+			text.push("(" + toAdd.CRN + ")");
+		else if(toAdd.crn != undefined)
+			text.push("(" + toAdd.crn + ")");
 	
 		for(i=0; i < toAdd.day.length; i++){
 			var dayText = text.slice(0);
@@ -97,6 +101,7 @@ function addToSchedule(schedule, addFrom, CRN, eventToggle, display){
 		schedule.onSchedule.push(toAdd);
 	} else {
 		console.log("Scheduling Conflict");
+		alert("Cannot add course: Scheduling Conflict");
 	}
 };
 
