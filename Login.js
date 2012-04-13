@@ -23,10 +23,14 @@ function login() {
 		url: "./json/Login.php",
 		data: {"password":password, "username":username},
 		success: function(data){
- 			//$("#loginForm").html("Success!");
+			$("#lineBreaks").show();
+ 			$("#loginForm").hide();
+			$("#logField").html("Welcome " + username + "!");
+			loadSchedules();
  			console.log(data);  
 		},
 		error: function(){
+			$("#logField").html("Try again.");
     		console.log(data);
   		}
 
@@ -36,19 +40,24 @@ function login() {
 function register() {
 	var username = $("#regUsername").val();
 	var password = $("#regPassword").val();
-	$.ajax({
-		type: "POST",
-		url: "./json/Register.php",
-		data: {"username":username,"password":password},
-		success: function(data){
- 			//$("#loginForm").html("Success!");
- 			console.log(data);  
-		},
-		error: function(){
-    		console.log(data);
-  		}
+	if(password == $("#confPassword").val()){
+		$.ajax({
+			type: "POST",
+			url: "./json/Register.php",
+			data: {"username":username,"password":password},
+			success: function(data){
+	 			$("#logFieldReg").html("Success!");
+	 			console.log(data);  
+			},
+			error: function(){
+				$("#logFieldReg").html("An error occured.");
+				console.log(data);
+	  		}
 
-	});
+		});
+	} else {
+		$("#logFieldReg").html("Please retype your passwords.");
+	}
 };
 	
 	
@@ -57,7 +66,19 @@ function logout() {
 		type: "POST",
 		url: "./json/Logout.php",
 		success: function(data){
- 			console.log(data);  
+			$("#lineBreaks").hide();
+			$("#loginForm").show();
+			$("#logField").html("You are not logged in.");
+			currentSchedule = schedules[0];
+			
+			if(schedules.length > 1){
+				schedules.splice(1, schedules.length-1);
+				loadSchedules();
+			}
+			
+			console.log(data);  
+			setTimeout(function() { $("#savedSchedules").html("<button onClick=\"showSchedule(0)\" onMouseOver=\"\" class=\"scheduleButton\">" + schedules[0].sname + "</button>") }, 2000);  
+ 			
 		},
 		error: function(){
     		console.log(data);

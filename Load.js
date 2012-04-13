@@ -6,6 +6,8 @@ var schedules = [];
 var currentSchedule;
 
 $(document).ready(function(){
+	logout();
+	$("#courseSlide").css("left", -$("#courseSlide").outerWidth());
 	var scheduleLayer = new Kinetic.Layer();
 	var textLayer = new Kinetic.Layer();
 	var newschedule = {"sname":"New","textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
