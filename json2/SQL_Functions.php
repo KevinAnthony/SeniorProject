@@ -33,10 +33,24 @@ function associative($result){
 
 
 /* QUERIES */	
-function DeleteEvent($id, $user){
-    $result=query("DELETE FROM event WHERE user='$user' AND ID=$id");	// Return true or false if attempt to delete event that doesn't exist?
+function DeleteEvent($id){
+    $result=query("DELETE FROM event WHERE ID=$id");	// Return true or false if attempt to delete event that doesn't exist? true
+	query("DELETE FROM schedule_event WHERE event_id='$id'");  // only until foreign key constraints decide to start working
     return $result ? true : false;
 }	
+
+function DeleteSchedule($user, $schedule_name){
+	$id=query("SELECT schedule_id FROM schedule WHERE user='$user' AND schedule_name='$schedule_name'");
+	if (mysql_num_rows($id) == 0 || (!$id)) { return false; }  // error or schedule doesn't exist
+	$id=mysql_fetch_array($id);
+	$id=$id["schedule_id"];
+	
+	$result=query("DELETE FROM schedule WHERE user='$user' AND schedule_name='$schedule_name'");
+	query("DELETE FROM schedule_course WHERE schedule_id='$id'");  // only until foreign key constraints decide to start working
+	query("DELETE FROM schedule_event WHERE schedule_id ='$id'");
+	
+	return ($result && mysql_num_rows($result) > 0 ) ? true : false;  // return false if error or if schedule doesn't exist
+}
 
 function GetEvents($user){
     $result = query("SELECT id, event_name, start_time, end_time, day FROM event WHERE username='$user'");
