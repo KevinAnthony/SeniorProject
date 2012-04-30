@@ -6,9 +6,11 @@ var descriptions = [];
 
 
 function loadSections(value) {
+	var semester = $("#semesterSelector").val();
+	
 	if( $("#classSelector").value != 1 ) {
 		courses = {};
-		$.getJSON("./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value,
+		$.getJSON("./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value + "&semester=" + semester,
 		 function (text) {
 				var i;
 				
@@ -96,9 +98,10 @@ function toggleSections(){
 
 function loadClasses() {
 	var sel = $("#subjectSelector").val();
+	var semester = $("#semesterSelector").val();
 	
 	if(sel != 1 && sel != 99){
-		$.getJSON("./json/GetCourseNumbers.php?department=" + sel, function (data) {
+		$.getJSON("./json/GetCourseNumbers.php?department=" + sel + "&semester=" + semester, function (data) {
 		    var i;
 		    var list = [];
 		    
@@ -119,7 +122,7 @@ function loadClasses() {
 		//javascript:saveEvent()
 		var form = "<tr><td colspan=\"6\" id=\"customEvent\">\
 		<form id=\"saveEventForm\" action=\"javascript:saveEvent()\" method=\"post\" accept-charset=\'UTF-8\'><span><label for=\"eventName\">Event Name:</label><br/><input type=\"text\" name=\"eventName\" id=\"eventName\" maxlength=\"32\"/></span>\
-		<br /><span><select id=\"daySelect\"><option value=\"-1\">Select Day<option/><option value=\"1\">Monday</option><option value=\"2\">Tuesday</option><option value=\"3\">Wednesday</option><option value=\"4\">Thursday</option><option value=\"5\">Friday</option><option id=\"6\">Saturday</option></select></span>\
+		<br /><span><select id=\"daySelect\"><option value=\"-1\">Select Day</option><option value=\"1\">Monday</option><option value=\"2\">Tuesday</option><option value=\"3\">Wednesday</option><option value=\"4\">Thursday</option><option value=\"5\">Friday</option><option id=\"6\">Saturday</option></select></span>\
 		<br /><span><label for=\"startTime\">Start Time:</label><br/><input type=\"text\" name=\"startTime\" id=\"startTime\" maxlength=\"5\"/><select id=\"SapSelect\"><option value=\"0\">AM</option><option value=\"1\">PM</option></select></span>\
 		<br /><span><label for=\"endTime\">End Time:</label><br/><input type=\"text\" name=\"endTime\" id=\"endTime\" maxlength=\"5\"/><select id=\"EapSelect\"><option value=\"0\">AM</option><option value=\"1\">PM</option></select></span>\
 		<br /><input type=\"submit\" name=\"Submit\" value=\"Save Event\"/></form></td></tr>";
@@ -139,6 +142,9 @@ function loadClasses() {
 				for(i=0; i < text.data.length; i++){
 					var day = "";
 					var times = "";
+					var dayHold = text.data[i].day;
+					var sTimeHold = text.data[i].start_time;
+					var eTimeHold = text.data[i].end_time;
 					
 					eventName = text.data[i].event_name;
 				
@@ -147,8 +153,15 @@ function loadClasses() {
 					times += pixelsToTime(text.data[i].start_time) + " - " + pixelsToTime(text.data[i].end_time) + "<br>";
 					
 								
-					list += "<tr><td>" + eventName + "</td><td>" + day + "</td><td>" + times + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, events,\'"+ text.data[i].id + text.data[i].event_name + "\',1, true)\">Add / Remove</button></td></tr>";
-				
+					list += "<tr><td>" + eventName + "</td><td>" + day + "</td><td>" + times + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, events,\'"+ text.data[i].id + text.data[i].event_name + "\',1, true)\">Add / Remove</button></td><td><button class=\"scheduleButton\" onClick=\"deleteEvent(" + text.data[i].id +")\">Delete</button></td></tr>";
+					text.data[i].day = [];
+					text.data[i].day.push(dayHold);
+					text.data[i].start_time = [];
+					text.data[i].start_time.push(sTimeHold);
+					text.data[i].end_time = [];
+					text.data[i].end_time.push(eTimeHold);
+					
+					
 					events[""+text.data[i].id + text.data[i].event_name] = text.data[i];	        		
 		    	}
 		    	
@@ -170,6 +183,20 @@ function loadClasses() {
 	}
 };
 
+function deleteEvent(id){
+	$.ajax({
+		type: "POST",
+		url: "./json/DeleteEvent.php?id=" + id,
+		success: function(data){
+			loadClasses();
+		},
+		error: function(){
+			alert("Delete Failed!");
+			console.log(data);
+		}
+	});
+}
+
 function saveEvent() {
 	var event_name = $("#eventName").val();
 	var day = $("#daySelect").val();
@@ -183,6 +210,7 @@ function saveEvent() {
 		data: {"event_name":event_name, "day":day, "start_time":start_time, "end_time":end_time},
 		success: function(data){
  			//$("#loginForm").html("Success!");
+ 			loadClasses();
  			console.log(data);  
 		},
 		error: function(){
@@ -213,19 +241,22 @@ function toggleCourseDropDown(option){
 };
 
 function loadSubjects(){
-	$.getJSON("./json/GetSubjects.php", function (data) {
-        var i;
-        var list = [];
-        
-        list.push("<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" class=\"opt\" value=\"1\">Select Subject</option><option class=\"opt\" value=\"99\">Custom Event</option>");
-        
-		$.each(data.data, function(key, val) {
-			list.push("<option value=\"" + val.department + "\" class=\"opt\">" + val.department + "</option>");
-    		subjects[i] = val.department;
-    	});
-    	
-    	list.push("</select>");
-		$('#subjectColumn').html(list.join(''));
-	});
+	var semester = $("#semesterSelector").val();
+	if(semester != 1){
+		$.getJSON("./json/GetSubjects.php?semester=" + semester, function (data) {
+		    var i;
+		    var list = [];
+		    
+		    list.push("<select id=\"subjectSelector\" onChange=\"loadClasses()\" class=\"selector\"><option id=\"-1\" class=\"opt\" value=\"1\">Select Subject</option><option class=\"opt\" value=\"99\">Custom Event</option>");
+		    
+			$.each(data.data, function(key, val) {
+				list.push("<option value=\"" + val.department + "\" class=\"opt\">" + val.department + "</option>");
+				subjects[i] = val.department;
+			});
+			
+			list.push("</select>");
+			$('#subjectColumn').html(list.join(''));
+		});
+	}
 };
 

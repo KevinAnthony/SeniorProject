@@ -23,10 +23,17 @@ function login() {
 		url: "./json/Login.php",
 		data: {"password":password, "username":username},
 		success: function(data){
-			$("#lineBreaks").show();
- 			$("#loginForm").hide();
-			$("#logField").html("Welcome " + username + "!");
-			loadSchedules();
+			data = $.parseJSON(data);
+			if(data.success){
+				$("#lineBreaks").show();
+	 			$("#loginForm").hide();
+				$("#logField").html("Welcome " + username + "!");
+				loadSchedules();
+			
+				if($("#subjectSelector").val() == 99){
+					loadClasses();
+				}
+			}
  			console.log(data);  
 		},
 		error: function(){
@@ -48,6 +55,9 @@ function register() {
 			success: function(data){
 	 			$("#logFieldReg").html("Success!");
 	 			console.log(data);  
+	 			$("#username").val(username);
+	 			$("#password").val(password);
+	 			login();
 			},
 			error: function(){
 				$("#logFieldReg").html("An error occured.");

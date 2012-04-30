@@ -76,6 +76,15 @@
 			<div id="selectors">
 				<table>
 					<tr>
+						<td id="semesterColumn">
+							<select id="semesterSelector" class="selector" onChange="loadSubjects()">
+								<option class="opt" value="1">Select Semester</option>
+								<option class="opt" value="2012s">Spring 2012</option>
+								<option class="opt" value="2012u">Summer 2012</option>
+								<option class="opt" value="2012f">Fall 2012</option>
+							</select>
+						</td>
+						
 						<td id="subjectColumn">
 							<select id="subjectSelector" class="selector">
 								<option class="opt">Select Subject</option>
@@ -124,43 +133,6 @@
 	<div id="cont">
 		<!-- The schedule shows up in here -->
     </div>
-	
-	<!--
-	<div id="buttons" class="selDiv">
-		<button onClick="populateList()" class="button">Get!</button>
-	</div>
-	</br>	
-	<div id="sdiv" class="selDiv">
-		<select id="sbox" class="selector">
-			<option class="opt">0 - 0:00</option>
-		</select> 
-	</div>
-	</br>
-	<div id="moreButtons" class="selDiv">
-		<button onClick="displaySelected()" class="button">Display!</button>
-		<button onClick="removeSelected()" class="button">Remove!</button>
-    </div>
-    </br>
-    <div id="sdiv" class="selDiv">
-    	<select id="sbox3" class="selector">
-    		<option class="opt">0</option>
-    		<option class="opt">1</option>
-    	</select>
-		<select id="sbox1" class="selector">
-			<option class="opt">600</option>
-			<option class="opt">500</option>
-			<option class="opt">400</option>
-		</select> 
-		<select id="sbox2" class="selector">
-			<option class="opt">700</option>
-			<option class="opt">650</option>
-			<option class="opt">660</option>
-		</select> 
-		<button onclick="sendEvent()" class="button">Add!</button>
-	</div>
-    
-    
-    -->
 </body>
 
 <!--http://web.njit.edu/~ka79/json/SaveEvent.php?day=1&start_time=2200&end_time=3300-->

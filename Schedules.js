@@ -46,11 +46,48 @@ function loadSchedules(){
 				//+save schedule
 			}
 			
-			list += "<button onClick=\"saveSchedule()\" class=\"scheduleButton\">Save Schedule</button>";
+			list += "<br/><br/><button onClick=\"saveSchedule()\" class=\"scheduleButton\">Save Schedule</button> <button onClick=\"exportSchedule()\" class=\"scheduleButton\">Export Schedule</button> <button onClick=\"deleteSchedule()\" class=\"scheduleButton\">Delete Schedule</button>";
 			$("#savedSchedules").html(list);
 		}
 	);
 };
+
+function deleteSchedule(){
+	//alert
+	var name = currentSchedule.sname;
+
+	$.ajax({
+		type: "POST",
+		url: "./json/DeleteSchedule.php?schedule_name=" + name,
+		success: function(data){
+			stage.remove(currentSchedule.textLayer);
+			stage.remove(currentSchedule.scheduleLayer);
+			
+			delete schedules;
+			schedules = [];
+		
+			var scheduleLayer = new Kinetic.Layer();
+			var textLayer = new Kinetic.Layer();
+			var newschedule = {"sname":"New","textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
+		
+			schedules.push(newschedule);
+			currentSchedule = schedules[0];
+			loadSchedules();
+		},
+		error: function(){
+			alert("Delete Failed!");
+			console.log(data);
+		}
+	});
+	
+}
+
+function exportSchedule(){
+	//alert
+	var name = currentSchedule.sname;
+
+	window.open("./json/ExportCalendar.php?schedule_id=" + name);
+}
 
 function showSchedule(scheduleNumber){
 	try {
@@ -68,8 +105,12 @@ function showSchedule(scheduleNumber){
 function saveSchedule(){
 	var elist = "";
 	var clist = "";
-	var scheduleName = "Last Test!";
+	var scheduleName = prompt("Schedule Name:","");
 	var i;
+
+	if(scheduleName == "" || scheduleName == null){
+		return;
+	}
 	
 	for(i=0; i < currentSchedule.onSchedule.length; i++){
 		if(currentSchedule.onSchedule[i].CRN != undefined){

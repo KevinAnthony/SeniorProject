@@ -80,7 +80,7 @@ $(document).ready(function(){
 
     calendarLayer.add(calBase);
     stage.add(calendarLayer);
-    loadSubjects();
+    //loadSubjects();
     
     $("#loginForm").onsubmit = "login()";
     
