@@ -7,6 +7,7 @@ var currentSchedule;
 
 $(document).ready(function(){
 	$("#semesterSelector").val(1);
+	$("#subjectSelector").val(1);
 	logout();
 
 	$("#courseSlide").css("left", -$("#courseSlide").outerWidth());
