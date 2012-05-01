@@ -6,7 +6,9 @@ if(isset($_COOKIE['SID'])){
     session_id($_COOKIE['SID']);
     session_start();
     if(isset($_SESSION['Username'])){
-        $result = GetSchedules($_SESSION['Username'],);
+        $result = GetSchedules($_SESSION['Username']);
+        var_dump($result);
+        return;
         $schedules = Array();
         if ($result == -1){
             $return_array['number_of_schedules'] = 0;
@@ -37,7 +39,7 @@ if(isset($_COOKIE['SID'])){
                     while( $row_class ) {
                         $i=0;
                         $single_schedule['schedule_name'] = $row_class["schedule_name"];
-                        $single_class = Array("crn"=> $row_class["crn"],"deptartment"=> $row_class["dept"],"number"=> $row_class["number"],"section"=> $row_class["section"],"credits"=> $row_class["credits"],"instructor"=> $row_class["instructor"],"course_name" => $row_class["course_name"],"course_description" => $row_class["description"]);
+                        $single_class = Array("CRN"=> $row_class["crn"],"deptartment"=> $row_class["dept"],"number"=> $row_class["number"],"section"=> $row_class["section"],"credits"=> $row_class["credits"],"instructor"=> $row_class["instructor"],"course_name" => $row_class["course_name"],"course_description" => $row_class["description"]);
                         $day = Array();
                         $start_time = Array();
                         $end_time = Array();
@@ -48,7 +50,7 @@ if(isset($_COOKIE['SID'])){
                         $room[$i] = $row_class["room"];
                         $i++;
                         $row_class = array_shift($course_result);
-                        while (($row_class) && $row_class["crn"] == $single_class["crn"]){
+                        while (($row_class) && $row_class["crn"] == $single_class["CRN"]){
                             if (in_array($row_class["day"],$day)){
                                 $row_class = array_shift($course_result);
                                 continue;
