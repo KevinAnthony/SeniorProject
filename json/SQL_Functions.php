@@ -76,8 +76,8 @@ function GetAllCourseNumbers($department, $semester){
                 "and C.semester='$semester'"));
 }
 
-function GetSchedules($username){
-    $result = query("SELECT schedule_id FROM schedule where user='$username'");
+function GetSchedules($username, $semester){
+    $result = query("SELECT schedule_id FROM schedule where user='$username' AND semester='$semester'");
     $return = array();
     if (mysql_num_rows($result) == 0){ 
         return -1;
@@ -87,7 +87,7 @@ function GetSchedules($username){
         $id = $row["schedule_id"];
         $events=array();
         $courses=array();
-
+	
         array_push($events, associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'")));
         array_push($courses,associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' order by crn")));
 
@@ -99,10 +99,10 @@ function GetSchedules($username){
     return $return;
 }
 
-function GetSchedule($username,$id){
+function GetSchedule($id,$semester){
     $return=array();
-    $return{"events"}=associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'"));
-    $return{"courses"}=associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' order by crn"));
+    $return{"events"}=associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id' AND semester='$semester'"));
+    $return{"courses"}=associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' AND semester='$semester' order by crn"));
     return $return;
 }
 function GetDepartments($semester){
