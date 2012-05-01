@@ -138,7 +138,7 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     $escaped_schedule_name = mysql_real_escape_string($schedule_name);
 
     mysql_query("INSERT IGNORE INTO schedule (user, schedule_name, semester) VALUES ('$user', '$escaped_schedule_name', '$semester')");
-    $result=mysql_query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
+    $result=mysql_query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name' AND semester='$semester'");
 
 
     $row = mysql_fetch_array($result);
