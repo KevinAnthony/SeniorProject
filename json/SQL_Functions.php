@@ -76,8 +76,8 @@ function GetAllCourseNumbers($department, $semester){
                 "and C.semester='$semester'"));
 }
 
-function GetSchedules($username, $semester){
-    $result = query("SELECT schedule_id FROM schedule where user='$username' AND semester='$semester'");
+function GetSchedules($username){
+    $result = query("SELECT schedule_id, semester FROM schedule where user='$username'");
     $return = array();
     if (mysql_num_rows($result) == 0){ 
         return -1;
@@ -87,11 +87,13 @@ function GetSchedules($username, $semester){
         $id = $row["schedule_id"];
         $events=array();
         $courses=array();
+	$semester=$row["semester"];
 	
         array_push($events, associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'")));
         array_push($courses,associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' order by crn")));
-
-        $temp_array=array();
+        
+	$temp_array=array();
+	$temp_array{"semester"}=$semester;
         $temp_array{"events"}=$events;
         $temp_array{"courses"}=$courses;
         array_push($return,$temp_array);
@@ -99,12 +101,13 @@ function GetSchedules($username, $semester){
     return $return;
 }
 
-function GetSchedule($id,$semester){
+function GetSchedule($id){
     $return=array();
-    $return{"events"}=associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id' AND semester='$semester'"));
-    $return{"courses"}=associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' AND semester='$semester' order by crn"));
+    $return{"events"}=associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'"));
+    $return{"courses"}=associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id'"));
     return $return;
 }
+
 function GetDepartments($semester){
     $result = query("SELECT DISTINCT dept FROM courses where semester='$semester' ORDER BY dept");
     return associative($result);
@@ -134,7 +137,7 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     db_connect();
     $escaped_schedule_name = mysql_real_escape_string($schedule_name);
 
-    mysql_query("INSERT IGNORE INTO schedule (user, schedule_name) VALUES ('$user', '$escaped_schedule_name')");
+    mysql_query("INSERT IGNORE INTO schedule (user, schedule_name, semester) VALUES ('$user', '$escaped_schedule_name', '$semester')");
     $result=mysql_query("SELECT MAX(schedule_id) AS schedule_id FROM schedule WHERE user='$user' AND schedule_name='$escaped_schedule_name'");
 
 
