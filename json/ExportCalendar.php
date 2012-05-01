@@ -6,8 +6,8 @@ $schedule_id = $_GET["schedule_id"];
 $year = 2012;
 $semsetar = "2012s";
 $semsetar_string  = "Spring 2012"; 
-$semsetar_start_month = '1';
-$semsetar_start_day = '15';
+$semsetar_start_month = '9';
+$semsetar_start_day = '1';
 
 if (empty($schedule_id)){
     $return_array["success"] = false;
@@ -18,6 +18,8 @@ if (empty($schedule_id)){
         session_start();
         if(isset($_SESSION['Username'])){
             $schedule = GetSchedule($_SESSION['Username'],$schedule_id);
+            var_dump($schedule);
+            return;
             $schedule_name = $schedule['courses'][0]['schdule_name'];
             $events = $schedule['events'];
             $courses = $schedule['courses'];
@@ -34,9 +36,9 @@ if (empty($schedule_id)){
                 $vevent = & $v->newComponent( 'vevent' );
                 $day = $course['day']+$semsetar_start_day;
                 $start_hour = intval($course['start_time']/60);
-                $start_min = $course['start_time']%60;
+                $start_min = $course['start_time'] % 60;
                 $end_hour = intval($course['end_time']/60);
-                $end_hour = $course['end_time']%60;
+                $end_min = $course['end_time'] % 60;
                 $start = array( 'year'=>$year, 'month'=>$semsetar_start_month, 'day'=>$day, 'hour'=>$start_hour, 'min'=>$start_min, 'sec'=>0 );
                 $vevent->setProperty( 'dtstart', $start );
                 $end = array( 'year'=>$year, 'month'=>$semsetar_start_month, 'day'=>$day, 'hour'=>$end_hour, 'min'=>$end_min, 'sec'=>0 );
@@ -52,7 +54,7 @@ if (empty($schedule_id)){
                 $start_hour = intval($event['start_time']/60);
                 $start_min = $event['start_time']%60;
                 $end_hour = intval($event['end_time']/60);
-                $end_hour = $event['end_time']%60;
+                $end_min = $event['end_time']%60;
                 $start = array( 'year'=>$year, 'month'=>$semsetar_start_month, 'day'=>$day, 'hour'=>$start_hour, 'min'=>$start_min, 'sec'=>0 );
                 $vevent->setProperty( 'dtstart', $start );
                 $end = array( 'year'=>$year, 'month'=>$semsetar_start_month, 'day'=>$day, 'hour'=>$end_hour, 'min'=>$end_min, 'sec'=>0 );

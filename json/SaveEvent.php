@@ -1,5 +1,5 @@
 <?php
-
+include_once dirname(__FILE__)."/SQL_Functions.php";
 $event_name = $_GET["event_name"];
 $day = $_GET["day"];
 $start_time = $_GET["start_time"];
@@ -50,24 +50,12 @@ if ($return_array["success"]){
         session_start();
         if(isset($_SESSION['Username'])){
             $username = $_SESSION['Username'];
-            $connection = mysql_connect('sql.njit.edu','ejw3_proj','ozw6OBAO') ;
-            if (!$connection){
-                $return_array["success"]=false;
-                $error_message = "SQLERROR: Error Connectiong to database -- ".mysql_error();
-                $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
-                echo json_encode($return_array);
-                die();
-            }
-            mysql_select_db('ejw3_proj');
-            $query = "insert into EVENT (EVENT_NAME,START_TIME,END_TIME,DAY,USERNAME) values ('$event_name','$start_time','$end_time','$day','$username') on duplicate key update START_TIME = '$start_time',END_TIME='$end_time',DAY = '$day';";
-            $result = mysql_query($query);
+            $result = SaveEvent($event_name,$start_time,$end_time,$day,$username);
             if (!$result){
                 $return_array["success"]=false;
                 $error_message = "SQLERROR: Error inserting into database -- ".mysql_error();
                 $return_array["error"]=(empty($return_array["error"]) ? $error_message : $return_array["error"] .';'. $error_message);
             }
-            mysql_free_result($result);
-            mysql_close($connection);
         } else {
             $return_array["success"]=false;
             $error_message = "SESSIONERROR: Session Expired";
