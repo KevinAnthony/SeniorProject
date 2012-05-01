@@ -99,10 +99,10 @@ function GetSchedules($username, $semester){
     return $return;
 }
 
-function GetSchedule($id,$semester){
+function GetSchedule($id){
     $return=array();
-    $return{"events"}=associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id' AND semester='$semester'"));
-    $return{"courses"}=associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id' AND semester='$semester' order by crn"));
+    $return{"events"}=associative(query("SELECT * FROM schedule_event_view WHERE schedule_id='$id'"));
+    $return{"courses"}=associative(query("SELECT * FROM schedule_course_view WHERE schedule_id='$id'"));
     return $return;
 }
 function GetDepartments($semester){
