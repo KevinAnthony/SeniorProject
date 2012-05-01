@@ -174,7 +174,7 @@ function get_all_crn($semester){
 
 function get_dates($semester){
 	// DAYOFWEEK returns a numerical value for weekday, i think with 1 as sunday and 7 as saturday
-    $start = assoiciative(query("SELECT Date, DAYOFWEEK(Date) AS weekday, description FROM dates WHERE semester='$semester' AND type=\"start\""));
+    $start = associative(query("SELECT Date, DAYOFWEEK(Date) AS weekday, description FROM dates WHERE semester='$semester' AND type=\"start\""));
     $last = associative(query("SELECT Date, DAYOFWEEK(Date) AS weekday, description FROM dates WHERE semester='$semester' AND type=\"last\""));
     $closed = associative(query("SELECT Date, DAYOFWEEK(Date) AS weekday, description FROM dates WHRE semester='$semester' AND type=\"closed\""));
 	$numWeeks = mysql_fetch_assoc(query("SELECT (DATEDIFF((SELECT Date FROM dates WHERE semester='$semester' AND type='last'), (SELECT Date FROM dates WHERE semester='$semester' AND type='start'))/7) AS numWeeks"));
