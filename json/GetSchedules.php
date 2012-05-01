@@ -7,8 +7,6 @@ if(isset($_COOKIE['SID'])){
     session_start();
     if(isset($_SESSION['Username'])){
         $result = GetSchedules($_SESSION['Username']);
-        var_dump($result);
-        return;
         $schedules = Array();
         if ($result == -1){
             $return_array['number_of_schedules'] = 0;
