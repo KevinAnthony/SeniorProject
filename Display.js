@@ -37,13 +37,13 @@ function addToSchedule(schedule, addFrom, CRN, eventToggle, display){
 		for(j=0; j < schedule.onSchedule[i].day.length && flagCheck; j++){
 			for(k=0; k < toAdd.day.length && flagCheck; k++){
 				if(toAdd.day[k] == schedule.onSchedule[i].day[j]){
-					if(toAdd.start_time[k] >= schedule.onSchedule[i].start_time[j] && toAdd.start_time[k] <= schedule.onSchedule[i].end_time[j])
+					if(parseInt(toAdd.start_time[k]) >= parseInt(schedule.onSchedule[i].start_time[j]) && parseInt(toAdd.start_time[k]) <= parseInt(schedule.onSchedule[i].end_time[j]))
 						flagCheck = false;
 					
-					if(toAdd.end_time[k] >= schedule.onSchedule[i].start_time[j] && toAdd.end_time[k] <= schedule.onSchedule[i].end_time[j])
+					if(parseInt(toAdd.end_time[k]) >= parseInt(schedule.onSchedule[i].start_time[j]) && parseInt(toAdd.end_time[k]) <= parseInt(schedule.onSchedule[i].end_time[j]))
 						flagCheck = false;
 						
-					if(toAdd.start_time[k] <= schedule.onSchedule[i].start_time[j] && toAdd.end_time >= schedule.onSchedule[i].end_time[j])
+					if((parseInt(toAdd.start_time[k]) <= parseInt(schedule.onSchedule[i].start_time[j])) && (parseInt(toAdd.end_time[k]) >= parseInt(schedule.onSchedule[i].end_time[j])))
 						flagCheck = false;
 						
 				}

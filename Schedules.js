@@ -9,7 +9,7 @@ function loadSchedules(){
 				var scheduleNumber;
 				var scheduleLayer = new Kinetic.Layer();
 				var textLayer = new Kinetic.Layer();
-				var schedule = {"sname":data.schedules[i][0].schedule_name,"textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
+				var schedule = {"sname":data.schedules[i][0].schedule_name,"id":data.schedules[i][0].id, "textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
 				var j;
 				
 				scheduleNumber = schedules.push(schedule);
@@ -90,7 +90,7 @@ function deleteSchedule(){
 
 function exportSchedule(){
 	//alert
-	var name = currentSchedule.sname;
+	var name = currentSchedule.id;
 
 	window.open("./json/ExportCalendar.php?schedule_id=" + name);
 }
