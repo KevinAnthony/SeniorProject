@@ -1,17 +1,12 @@
 <?php
 include_once dirname(__FILE__)."/SQL_Functions.php";
 $return_array = Array("success" => true);
-if (empty($_GET['semester'])){
-    $semester = '2012s';
-} else {
-    $semester = $_GET['semester'];
-}
 
 if(isset($_COOKIE['SID'])){
     session_id($_COOKIE['SID']);
     session_start();
     if(isset($_SESSION['Username'])){
-        $result = GetSchedules($_SESSION['Username'],$semester);
+        $result = GetSchedules($_SESSION['Username'],);
         $schedules = Array();
         if ($result == -1){
             $return_array['number_of_schedules'] = 0;
