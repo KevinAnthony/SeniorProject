@@ -7,11 +7,8 @@ sub getPage{
 	$url="\'$url\'";
 	$outFile=shift;
 	$semester=shift;
-	print("Getting $url pages ......\n");
 	system("/usr/bin/php ./scraper.php $url $semester > $outFile"); 
-	sleep(9);
-	print("Done retrieving $url.\n");
-	
+	sleep(9);	
 }
 
 sub parseSubjects{
@@ -22,11 +19,11 @@ sub parseSubjects{
 	
 	# get rid of all the garbage since the entire subject list is on one line
 	s/<div class=\'col\'>(.*?)<span>//g;
-	s/<\/div>(.*?)<span>//g;
-	s/<div class='courseList_section'>(.*?)<span>//g;
-	s/<\/div>//g;
-	s/<\/span>//g;
-	s/<span>//g;
+	s/<div\s+class=\'courseList_section\'>//g;
+	s/<\/div>(.*?)<h1>(.*?)h1>//g;
+	s/<h1>(.*?)<\/h1>//g;
+	s/<(\/)?div>//g;
+	s/<(\/)?span>//g;
 	s/<a href=(.*?)>//g;
 	
 	$subjects=$_;
@@ -44,7 +41,6 @@ sub parseSubjects{
 
 sub parseClasses{
 	$file = shift;
-	#$_= <$file> while ($_ !~ /<a id=\"ctl10_GridView1_ct.*_lbCourse\"/);
 	
 	while (<$file>){
 		next if ($_ !~ /<a id=\"ctl10_GridView1_ctl.*_lbCourse\"/);
@@ -56,7 +52,6 @@ sub parseClasses{
 		push (@classes, $class);
 	}
 	
-	# needed because of special topics courses with same numbers but different names (prevent duplicates)
 	undef %saw;
 	@classes = grep(!$saw{$_}++, @classes);
 	
@@ -78,7 +73,7 @@ sub parseSections{
 				
 	$_=<$file> while ($_ !~ /ctl10_lblCourseDesc/);
 	chomp;
-	s/.*<span id="ctl10_lblCourseDesc">(.*)\<\/span\>.*/\1/;	# figure out why this doesn't take out <span id=.* in some cases (ACCT 325)
+	s/.*<span id="ctl10_lblCourseDesc">(.*)\<\/span\>.*/\1/;
 	s/\s*\<p style\=\"margin-bottom:5px\;\"\>//;	
 		
 	if ($_ =~ /^Prerequisite/){
@@ -86,14 +81,10 @@ sub parseSections{
 		$prereq = $description;
 		$description =~ s/.*Prerequisite.*?\.(.*)/\1/;
 		
-		$coreq =~ s/.*Corequisites?: (.*)?\./\1/;
-		#do something similar to prereqs
-		
-		$prereq =~ s/Prerequisite(.*?\.).*/\1/;
-		#system("echo $prereq >> raw_prerequisites.txt");	
+		$prereq =~ s/Prerequisite(.*?\.).*/\1/;	
 		$prereq =~ s/(.*?)s?: //;
 		$prereq =~ s/.*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).* and .*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*/\1 and \2/g; 
-		$prereq =~ s/.*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*, .*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*/\1 and \2/g;  # separate comma spaced prereqs
+		$prereq =~ s/.*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*, .*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*/\1 and \2/g;  
 		$prereq =~ s/.*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).* or .*([A-Z][a-zA-Z]{1,4} [0-9]{3}[A-Z]?).*/\1 OR \2/g;
 		$prereq =~ s/\.//;
 		push(@prereqs, split(' and ', $prereq));
@@ -103,17 +94,13 @@ sub parseSections{
 		$description=$_;
 	}
 	
-	$description =~ s/([\'\"])/\\\1/g; # escape all of the quotes in the description
-	
-	#print("Description: $description\n") if ($debug =~ /all/ || $debug =~ /vars/);
-				
+	$description =~ s/([\'\"])/\\\1/g; 
+					
 	$query = "INSERT IGNORE INTO course_description VALUES (\"".$name."\",\"".$dept."\",\"".$num."\",\"".$description."\");";
-	#print("$query\n") if ($debug =~ /all/ || $debug =~ /query/);
 	system("echo \'$query\' >> courses.txt"); 
 	
 	while ($prereq = shift(@prereqs)){
 		$query = "INSERT IGNORE INTO prerequisites VALUES (\"".$dept." ".$num."\",\"".uc($prereq)."\");";
-		#print("$query\n") if ($debug =~ /all/ || $debug =~ /query/);
 		system("echo \'$query\' >> courses.txt");	
 	}
 				
@@ -195,12 +182,18 @@ sub parseSections{
 				print("Status: $status\n") if ($debug =~ /all/ || $debug =~ /vars/);
 					
 				# instructor
-				while ($_=<$file>) { last if ($_ =~ /\.aspx\?persid\=.*/); }
-				chomp;
-				s/.*\.aspx\?persid\=.*\"\>(.*)\<.*/\1/;
-				$instructor=$_;
-				print("Instructor: $instructor\n") if ($debug =~ /all/ || $debug =~ /vars/);
-					
+				while ($_=<$file>) { last if ($_ =~ /<td class=\"instructor">/); }
+				$_=<$file>;
+				if ($_ =~ /\.aspx\?persid\=.*>/){
+					chomp;
+					s/.*\.aspx\?persid\=.*\"\>(.*)\<.*/\1/;
+					$instructor=$_;
+					print("Instructor: $instructor\n") if ($debug =~ /all/ || $debug =~ /vars/);
+				}
+				else {
+					$instructor="TBA";	
+				}	
+				
 				# credits
 				while ($_=<$file>) { last if ($_ =~ /credits/); }
 				chomp;
@@ -240,20 +233,18 @@ open subjectFile, "./$semester/subjects" or die $!;
 @subjects=parseSubjects(*subjectFile);
 print "@subjects";
 close subjectFile;
-print ("Subjects for $semester retrieved ......");
 
 while ($sub = shift(@subjects)){
 	mkdir "$semester/$sub" unless (-d "$semester/$sub");
-	print("$sub directory created.......");
 	$file="./$semester/$sub/courses";
 	getPage("http://courseschedules.njit.edu/index.aspx?semester=$semester&subjectID=$sub", $file, $semester) unless (-e $file);
 	open classFile, $file or die $!;
+	print "Current subject: $sub";
 	@classes = parseClasses(*classFile);
-	print "@classes";
 	close classFile;
-	print("Class list for $semester  $sub retrieved .....");
 	
 	while ($class = shift(@classes)){
+		print "Current class: $class";
 		$file="./$semester/$sub/$class";
 		getPage("http://courseschedules.njit.edu/index.aspx?semester=$semester&subjectID=$sub&course=$class", $file, $semester) unless (-e $file);
 		open sectionFile, $file or die $!;
@@ -263,4 +254,3 @@ while ($sub = shift(@subjects)){
 
 }
 
-system("./insert_data.sh courses.txt");
