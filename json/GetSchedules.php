@@ -17,7 +17,6 @@ if(isset($_COOKIE['SID'])){
             array_push($schedules,$schedule_group);
             $return_array['schedules'] = $schedules;
             $return_array['number_of_schedules'] = 0;
-            $return_array['semester'] = "2012w";
             
         } else {
             if (!$result){
@@ -34,7 +33,7 @@ if(isset($_COOKIE['SID'])){
                     while( $row_event = array_shift($event_result) ) {
                         array_push($event_array,Array("event_name"=>$row_event["event_name"],"start_time"=>$row_event["start_time"],"end_time"=>$row_event["end_time"],"day"=>$row_event["day"],"id" => $row_event["event_id"]));
                         $single_schedule['schedule_name'] = $row_event["schedule_name"];
-                        $return_array['semester'] = $row_event['semester'];
+                        $single_schedule['semester'] = $row_event['semester'];
                     }
                     $row_class = array_shift($course_result);
                     while( $row_class ) {
