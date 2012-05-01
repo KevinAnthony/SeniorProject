@@ -3,7 +3,6 @@ function loadSchedules(){
 		function(data){
 			console.log(data);
 
-
 			var numScheds = data.number_of_schedules;
 
 			for(i=0; i < numScheds; i++){
@@ -47,7 +46,10 @@ function loadSchedules(){
 			}
 			
 			list += "<br/><br/><button onClick=\"saveSchedule()\" class=\"scheduleButton\">Save Schedule</button> <button onClick=\"exportSchedule()\" class=\"scheduleButton\">Export Schedule</button> <button onClick=\"deleteSchedule()\" class=\"scheduleButton\">Delete Schedule</button>";
+			
 			$("#savedSchedules").html(list);
+			
+			loadListings();
 		}
 	);
 };
@@ -55,32 +57,36 @@ function loadSchedules(){
 function deleteSchedule(){
 	//alert
 	var name = currentSchedule.sname;
-
-	$.ajax({
-		type: "POST",
-		url: "./json/DeleteSchedule.php?schedule_name=" + name,
-		success: function(data){
-			stage.remove(currentSchedule.textLayer);
-			stage.remove(currentSchedule.scheduleLayer);
-			
-			delete schedules;
-			schedules = [];
-		
-			var scheduleLayer = new Kinetic.Layer();
-			var textLayer = new Kinetic.Layer();
-			var newschedule = {"sname":"New","textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
-		
-			schedules.push(newschedule);
-			currentSchedule = schedules[0];
-			loadSchedules();
-		},
-		error: function(){
-			alert("Delete Failed!");
-			console.log(data);
-		}
-	});
 	
+	if(currentSchedule.sname != "New"){
+		$.ajax({
+			type: "POST",
+			url: "./json/DeleteSchedule.php?schedule_name=" + name,
+			success: function(data){
+				stage.remove(currentSchedule.textLayer);
+				stage.remove(currentSchedule.scheduleLayer);
+				
+				currentSchedule = schedules[0];
+				delete schedules;
+				schedules = [];
+				schedules.push(currentSchedule);
+		
+				//var scheduleLayer = new Kinetic.Layer();
+				//var textLayer = new Kinetic.Layer();
+				//var newschedule = {"sname":"New","textLayer":textLayer, "scheduleLayer":scheduleLayer, "onSchedule":[]};
+		
+				//schedules.push(newschedule);
+				//currentSchedule = schedules[0];
+				loadSchedules();
+			},
+			error: function(){
+				alert("Delete Failed!");
+				console.log(data);
+			}
+		});
+	}
 }
+
 
 function exportSchedule(){
 	//alert
@@ -98,7 +104,8 @@ function showSchedule(scheduleNumber){
 	currentSchedule = schedules[scheduleNumber];
 	
 	stage.add(currentSchedule.scheduleLayer);
-	stage.add(currentSchedule.textLayer);	
+	stage.add(currentSchedule.textLayer);
+	loadListings();	
 };
 
 
@@ -108,7 +115,7 @@ function saveSchedule(){
 	var scheduleName = prompt("Schedule Name:","");
 	var i;
 
-	if(scheduleName == "" || scheduleName == null){
+	if(scheduleName == "" || scheduleName == null || scheduleName == "New"){
 		return;
 	}
 	
@@ -132,6 +139,7 @@ function saveSchedule(){
 			if(currentSchedule.sname == "New"){
 				stage.remove(schedules[0].textLayer);
 				stage.remove(schedules[0].scheduleLayer);
+				
 				delete schedules;
 				schedules = [];
 			
@@ -153,6 +161,33 @@ function saveSchedule(){
 };
 
 
+function loadListings(){
+	var i;
+	var list = "";
+	
+	for(i=0; i < currentSchedule.onSchedule.length; i++){
+		var days = "";
+		var times = "";
+		var rooms = "";
+		var j;
+		
+		classy = currentSchedule.onSchedule[i];
+		
+		for(j=0; j < classy.day.length; j++){
+			days += numToDay(classy.day[j]) + "<br>";
+		
+			rooms += classy.room[j] + "<br>";
+		
+			times += pixelsToTime(classy.start_time[j]) + "-" + pixelsToTime(classy.end_time[j]) + "<br>";
+		}
+					
+		list += "<tr><td>"+ classy.cname +"</td><td>" + classy.CRN + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.instructor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, courses, "+ classy.CRN +",0, true)\">Remove</button></td></tr>";	      //new remove function?  		
+	}
+	
+	if(list != undefined)
+		$("#cListTable").html(list);
+
+};
 
 
 

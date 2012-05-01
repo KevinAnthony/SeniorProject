@@ -1,6 +1,11 @@
 /*body {
 	overflow:hidden;
 }*/
+table#cListTable{
+	top:970px;
+	font-family:monospace;
+	position:relative;
+}
 
 A#loginLink:link {
 	font-size: 14px;

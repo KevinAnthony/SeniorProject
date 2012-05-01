@@ -7,7 +7,8 @@ var descriptions = [];
 
 function loadSections(value) {
 	var semester = $("#semesterSelector").val();
-	
+	$("#sectionTable").html("");
+						
 	if( $("#classSelector").value != 1 ) {
 		courses = {};
 		$.getJSON("./json/GetClassTimes.php?course_number=" + document.getElementById("classSelector").value + "&department=" + document.getElementById("subjectSelector").value + "&semester=" + semester,
@@ -39,7 +40,7 @@ function loadSections(value) {
 					
 						rooms += text.data[i].room[j] + "<br>";
 					
-						times += pixelsToTime(text.data[i].start_time[j]) + " - " + pixelsToTime(text.data[i].end_time[j]) + "<br>";
+						times += pixelsToTime(text.data[i].start_time[j]) + "-" + pixelsToTime(text.data[i].end_time[j]) + "<br>";
 					}
 								
 					list += "<tr><td>" + classy.CRN + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.instructor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, courses, "+ classy.CRN +",0, true)\">Add / Remove</button></td></tr>";
@@ -99,6 +100,8 @@ function toggleSections(){
 function loadClasses() {
 	var sel = $("#subjectSelector").val();
 	var semester = $("#semesterSelector").val();
+	//$("#classSelector").val(1);
+	$("#sectionTable").html("");
 	
 	if(sel != 1 && sel != 99){
 		$.getJSON("./json/GetCourseNumbers.php?department=" + sel + "&semester=" + semester, function (data) {
@@ -110,6 +113,7 @@ function loadClasses() {
 		    for(i=0; i < data.data.length; i++){
 		    	var course = data.data[i].course_number;
 		    	var courseName = data.data[i].course_name;
+		    	//if coursename contains &amp, remove
 		    	descriptions[i] = data.data[i].description;
     			list.push("<option id=\"" + i + "\" value=\"" + course + "\" class=\"opt\">" + course + " - " + courseName + "</option>");
         	}
@@ -150,10 +154,10 @@ function loadClasses() {
 				
 					day += numToDay(text.data[i].day) + "<br>";
 				
-					times += pixelsToTime(text.data[i].start_time) + " - " + pixelsToTime(text.data[i].end_time) + "<br>";
+					times += pixelsToTime(text.data[i].start_time) + "-" + pixelsToTime(text.data[i].end_time) + "<br>";
 					
 								
-					list += "<tr><td>" + eventName + "</td><td>" + day + "</td><td>" + times + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, events,\'"+ text.data[i].id + text.data[i].event_name + "\',1, true)\">Add / Remove</button></td><td><button class=\"scheduleButton\" onClick=\"deleteEvent(" + text.data[i].id +")\">Delete</button></td></tr>";
+					list += "<tr><td>" + eventName + "</td><td>" + day + "</td><td nowrap=\"nowrap\">" + times + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, events,\'"+ text.data[i].id + text.data[i].event_name + "\',1, true)\">Add / Remove</button></td><td><button class=\"scheduleButton\" onClick=\"deleteEvent(" + text.data[i].id +")\">Delete</button></td></tr>";
 					text.data[i].day = [];
 					text.data[i].day.push(dayHold);
 					text.data[i].start_time = [];
@@ -241,6 +245,10 @@ function toggleCourseDropDown(option){
 };
 
 function loadSubjects(){
+	$("#subjectSelector").val(1);
+	$("#classSelector").val(1);
+	$("#sectionTable").html("");
+	
 	var semester = $("#semesterSelector").val();
 	if(semester != 1){
 		$.getJSON("./json/GetSubjects.php?semester=" + semester, function (data) {
