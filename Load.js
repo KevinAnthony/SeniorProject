@@ -6,7 +6,9 @@ var schedules = [];
 var currentSchedule;
 
 $(document).ready(function(){
+	$("#semesterSelector").val(1);
 	logout();
+
 	$("#courseSlide").css("left", -$("#courseSlide").outerWidth());
 	var scheduleLayer = new Kinetic.Layer();
 	var textLayer = new Kinetic.Layer();

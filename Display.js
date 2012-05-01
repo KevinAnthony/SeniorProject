@@ -28,6 +28,7 @@ function addToSchedule(schedule, addFrom, CRN, eventToggle, display){
 			stage.add(schedule.textLayer);
 			
 			schedule.onSchedule.splice(i,1);
+			loadListings();
 			return;
 		}
 	}
@@ -98,16 +99,24 @@ function addToSchedule(schedule, addFrom, CRN, eventToggle, display){
 		console.log("Scheduling Conflict");
 		alert("Cannot add course: Scheduling Conflict");
 	}
+	
+	loadListings();
 };
 
 //start_time, end_time in minutes
 function addBlock(scheduleLayer, textLayer, dayText, day, start_time, end_time, display){	//generates a rectangle of specified dimensions
 	var tX = DayToPixels(parseInt(day));
 	var tY = TimeToPixels(parseInt(start_time));
+	var h;
+	
+	var check = dayText[0].indexOf("&amp;");
+	if(check != -1){
+		dayText[0] = dayText[0].slice(0, check+1) + dayText[0].slice(check+5);
+	}
 	
 	var block = new Kinetic.Shape(function(){
 		var w = DayToPixels(parseInt(day)+1) - tX;
-		var h = TimeToPixels(parseInt(end_time)) - tY;
+		h = TimeToPixels(parseInt(end_time)) - tY;
 		var context = this.getContext();
         
 		context.rect(tX, tY, w, h);
@@ -122,9 +131,19 @@ function addBlock(scheduleLayer, textLayer, dayText, day, start_time, end_time, 
 	
 	var blockText = new Kinetic.Shape(function() {
 		var i;
+		var count;
+		
 		var context = this.getContext();
 		context.fillStyle = "#000000";
-		for(i=0; i < dayText.length; i++){
+		if(h < 36){
+			count = 1;
+		} else if(h < 50){
+			count = 2;
+		} else {
+			count = dayText.length;
+		}
+		
+		for(i=0; i < count; i++){
 			context.fillText(dayText[i], tX+8, tY+(15 * (i+1)));
 			context.stroke();
 		}
@@ -155,7 +174,7 @@ function pixelsToTime(pixels){
 	var hours = parseInt(pixels / 60).toString();
 	var minutes = parseInt(pixels % 60).toString();
 	hours = (hours.length == 1 ? "0" + hours : hours);
-	minutes += (minutes.length == 1 ? "0" : "");
+	minutes = (minutes.length == 1 ? "0" : "") + minutes;
 	var time = hours + ":" + minutes;
 	
 	return time;

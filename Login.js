@@ -32,12 +32,14 @@ function login() {
 			
 				if($("#subjectSelector").val() == 99){
 					loadClasses();
-				}
+				} 
+			} else {
+				alert(data.printable_error_message);
+				$("#logField").html("Try again.");
 			}
  			console.log(data);  
 		},
 		error: function(){
-			$("#logField").html("Try again.");
     		console.log(data);
   		}
 
@@ -79,11 +81,12 @@ function logout() {
 			$("#lineBreaks").hide();
 			$("#loginForm").show();
 			$("#logField").html("You are not logged in.");
-			currentSchedule = schedules[0];
+			showSchedule(0);
 			
 			if(schedules.length > 1){
 				schedules.splice(1, schedules.length-1);
 				loadSchedules();
+				loadListings();
 			}
 			
 			console.log(data);  
