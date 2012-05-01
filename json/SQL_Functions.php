@@ -145,7 +145,7 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     $id = $row["schedule_id"];
 
     $temp = join(',', $courses);
-    mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id' AND crn NOT IN ($temp)");
+    mysql_query("DELETE FROM schedule_course WHERE schedule_id='$id' AND semester='$semester' AND crn NOT IN ($temp)");
 
 
     while ($course = array_shift($courses)){
@@ -154,7 +154,7 @@ function SaveSchedule($semester, $user, $schedule_name, $courses, $events){
     }
 
     $temp = join(',', $events);
-    mysql_query("DELETE FROM schedule_event WHERE schedule_id='$id' AND event_id NOT IN ($temp)");
+    mysql_query("DELETE FROM schedule_event WHERE schedule_id='$id' AND semester='$semester' AND event_id NOT IN ($temp)");
 
     while ($event = array_shift($events)){
         $result=mysql_query("INSERT IGNORE INTO schedule_event VALUES ('$semester','$id', '$event')");
