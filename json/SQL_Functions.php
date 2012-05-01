@@ -181,7 +181,7 @@ function get_dates($semester){
     $dates{"start"} = $start;
     $dates{"end"} = $last;
     $dates{"closed"} = $closed;
-
+    $dates{"numWeeks"}=$numWeeks;
     return $dates;
 }
 
