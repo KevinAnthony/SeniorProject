@@ -34,6 +34,7 @@ if(isset($_COOKIE['SID'])){
                         array_push($event_array,Array("event_name"=>$row_event["event_name"],"start_time"=>$row_event["start_time"],"end_time"=>$row_event["end_time"],"day"=>$row_event["day"],"id" => $row_event["event_id"]));
                         $single_schedule['schedule_name'] = $row_event["schedule_name"];
                         $single_schedule['semester'] = $row_event['semester'];
+                        $single_schedule['id'] = $row_event['schedule_id'];
                     }
                     $row_class = array_shift($course_result);
                     while( $row_class ) {
