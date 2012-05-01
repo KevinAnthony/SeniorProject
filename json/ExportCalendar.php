@@ -17,9 +17,15 @@ if (empty($schedule_id)){
         session_id($_COOKIE['SID']);
         session_start();
         if(isset($_SESSION['Username'])){
-            $schedule = GetSchedule($_SESSION['Username'],$schedule_id);
-            var_dump($schedule);
-            return;
+            $schedule = GetSchedule($schedule_id);
+            $semester = $schedule['courses'][0]['semester'];
+            $dates = get_dates($semster);
+            $start_date = $dates['start'][0];
+            $end_date = $dates['end'][0];
+            $semsetar_start_array = split('-',$start_date['Date']);
+            $semsetar_start_date = $semsetar_start_array[1];
+            $week_start_day = $semsetar_start_array[2]-$start_date['weekday']+1;
+            $end_date_array  = split('-',$end_date['Date']);
             $schedule_name = $schedule['courses'][0]['schdule_name'];
             $events = $schedule['events'];
             $courses = $schedule['courses'];
@@ -34,7 +40,7 @@ if (empty($schedule_id)){
             $xprops = array( "X-LIC-LOCATION" => $tz );
             foreach ($courses as $course){
                 $vevent = & $v->newComponent( 'vevent' );
-                $day = $course['day']+$semsetar_start_day;
+                $day = $week_start_day+$course['day'];
                 $start_hour = intval($course['start_time']/60);
                 $start_min = $course['start_time'] % 60;
                 $end_hour = intval($course['end_time']/60);
@@ -43,14 +49,14 @@ if (empty($schedule_id)){
                 $vevent->setProperty( 'dtstart', $start );
                 $end = array( 'year'=>$year, 'month'=>$semsetar_start_month, 'day'=>$day, 'hour'=>$end_hour, 'min'=>$end_min, 'sec'=>0 );
                 $vevent->setProperty( 'dtend', $end );
-                $vevent->setProperty( 'LOCATION', $course['room'] );
+                $vevent->setProperty( 'location', $course['room'] );
                 $vevent->setProperty( 'summary', $course['course_name'] );
                 $vevent->setProperty( 'description', $course['description'] );
-                $vevent->setProperty( 'rrule', array( 'FREQ' => 'WEEKLY', 'count' => 17));
+                $vevent->setProperty( 'rrule', array( 'FREQ' => 'WEEKLY', 'until' => array( 'year'=>$end_date_array[0], 'month'=>$end_date_array[1], 'day'=>$end_date_array[2] )));
             }
             foreach ($events as $event){
                 $vevent = & $v->newComponent( 'vevent' );
-                $day = $event['day']+$semsetar_start_day;
+                $day = $week_start_day+$event['day'];
                 $start_hour = intval($event['start_time']/60);
                 $start_min = $event['start_time']%60;
                 $end_hour = intval($event['end_time']/60);
@@ -59,7 +65,7 @@ if (empty($schedule_id)){
                 $vevent->setProperty( 'dtstart', $start );
                 $end = array( 'year'=>$year, 'month'=>$semsetar_start_month, 'day'=>$day, 'hour'=>$end_hour, 'min'=>$end_min, 'sec'=>0 );
                 $vevent->setProperty( 'dtend', $end );
-                $vevent->setProperty( 'rrule', array( 'FREQ' => 'WEEKLY', 'count' => 17));
+                $vevent->setProperty( 'rrule', array( 'FREQ' => 'WEEKLY', 'until' => array('year'=>$end_date_array[0], 'month'=>$end_date_array[1], 'day'=>$end_date_array[2] )));
             }
             $v->returnCalendar();
         } else {
