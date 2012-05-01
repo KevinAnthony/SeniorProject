@@ -63,8 +63,8 @@ function addToSchedule(schedule, addFrom, CRN, eventToggle, display){
 		
 		if(toAdd.CRN != undefined)
 			text.push("(" + toAdd.CRN + ")");
-		else if(toAdd.crn != undefined)
-			text.push("(" + toAdd.crn + ")");
+		else if(toAdd.CRN != undefined)
+			text.push("(" + toAdd.CRN + ")");
 	
 		for(i=0; i < toAdd.day.length; i++){
 			var dayText = text.slice(0);
@@ -157,7 +157,7 @@ function addBlock(scheduleLayer, textLayer, dayText, day, start_time, end_time, 
 	});*/
 	
 	//blockText.setZIndex(block.getZIndex() + 1);
-	
+	blockText.on("mousedown", function() {window.location.hash = '#bottomList';});
 	scheduleLayer.add(block);
 	textLayer.add(blockText);	
 	//scheduleLayer.add(text);

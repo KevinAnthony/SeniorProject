@@ -6,19 +6,9 @@
     <script type="text/javascript" src="jquery-1.7.1.min.js"></script>  
     <script src="Listings.js"></script>
     <script src="Display.js"></script>
+	<script src="Schedules.js"></script>
     <script src="Login.js"></script>
-    <script src="Schedules.js"></script>
     <script src="Load.js"></script>
-    <script>
-    //to do
-    	//section listing
-    	//login, register
-    		//register div
-    	//displaying what is added
-    		//checking for collisions
-    		//info inside boxes / more info?
-    	
-    </script>
 </head>
 <body>
 	<div id="slideParent">
@@ -86,8 +76,9 @@
 						</td>
 						
 						<td id="subjectColumn">
-							<select id="subjectSelector" class="selector">
-								<option class="opt">Select Subject</option>
+							<select id="subjectSelector" class="selector" onChange="loadClasses()">
+								<option class="opt" value="1">Select Subject</option>
+								<option class="opt" value="99">Custom Event</option>
 							</select>
 						</td>
 			
@@ -135,7 +126,7 @@
     </div>
     <div align="center" id="currentList">
     	<!-- The current schedule's listings go here -->
-    	<table align="center" id="cListTable" cellspacing="10"></table>
+    	<table align="center" id="cListTable" cellspacing="10"><a id="bottomAnchor" name="bottomList"></a></table>
     </div>
 </body>
 

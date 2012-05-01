@@ -18,12 +18,12 @@ function loadSchedules(){
 				var addFrom = {};
 				
 				for(j=0; j < data.schedules[i][0].courses.length; j++){
-					addFrom[data.schedules[i][0].courses[j].crn] = data.schedules[i][0].courses[j];
+					addFrom[data.schedules[i][0].courses[j].CRN] = data.schedules[i][0].courses[j];
 				
-					addFrom[data.schedules[i][0].courses[j].crn].cname = addFrom[data.schedules[i][0].courses[j].crn].course_name;
-					delete addFrom[data.schedules[i][0].courses[j].crn].course_name;
+					addFrom[data.schedules[i][0].courses[j].CRN].cname = addFrom[data.schedules[i][0].courses[j].CRN].course_name;
+					delete addFrom[data.schedules[i][0].courses[j].CRN].course_name;
 				
-					addToSchedule(schedules[scheduleNumber], addFrom, data.schedules[i][0].courses[j].crn, 0, false)
+					addToSchedule(schedules[scheduleNumber], addFrom, data.schedules[i][0].courses[j].CRN, 0, false)
 				}
 				
 				addFrom = {};
@@ -121,6 +121,9 @@ function saveSchedule(){
 	
 	for(i=0; i < currentSchedule.onSchedule.length; i++){
 		if(currentSchedule.onSchedule[i].CRN != undefined){
+			currentSchedule.onSchedule[i].CRN = currentSchedule.onSchedule[i].CRN;
+		}
+		if(currentSchedule.onSchedule[i].CRN != undefined){
 			if(clist != "")
 				clist += ", "
 			clist += currentSchedule.onSchedule[i].CRN;
@@ -151,6 +154,12 @@ function saveSchedule(){
 				currentSchedule = schedules[0];
 			} else {
 				//somethingsomethingsomething
+				var newschedule = schedules[0];
+				delete schedules;
+				schedules = [];
+				
+				schedules.push(newschedule);
+				currentSchedule = schedules[0];
 			}
 			loadSchedules();
 		},
@@ -173,15 +182,39 @@ function loadListings(){
 		
 		classy = currentSchedule.onSchedule[i];
 		
-		for(j=0; j < classy.day.length; j++){
-			days += numToDay(classy.day[j]) + "<br>";
+		if(classy.id != undefined){
+			var day = "";
+			var times = "";
+			var eventName;
+			//var dayHold = text.data[i].day;
+			//var sTimeHold = text.data[i].start_time;
+			//var eTimeHold = text.data[i].end_time;
 		
-			rooms += classy.room[j] + "<br>";
+			eventName = classy.event_name;
+	
+			day += numToDay(classy.day) + "<br>";
+	
+			times += pixelsToTime(classy.start_time) + "-" + pixelsToTime(classy.end_time) + "<br>";
+			
+			
+			list += "<tr><td>" + eventName + "</td><td></td><td>" + day + "</td><td nowrap=\"nowrap\">" + times + "</td><td></td><td></td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, events,\'"+ classy.id + classy.event_name + "\',1, true)\">Remove</button></td></tr>";
+			
+		} else {
 		
-			times += pixelsToTime(classy.start_time[j]) + "-" + pixelsToTime(classy.end_time[j]) + "<br>";
-		}
+			if(classy.CRN == undefined)
+				classy.CRN = classy.CRN;
+		
+		
+			for(j=0; j < classy.day.length; j++){
+				days += numToDay(classy.day[j]) + "<br>";
+		
+				rooms += classy.room[j] + "<br>";
+		
+				times += pixelsToTime(classy.start_time[j]) + "-" + pixelsToTime(classy.end_time[j]) + "<br>";
+			}
 					
-		list += "<tr><td>"+ classy.cname +"</td><td>" + classy.CRN + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.instructor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, courses, "+ classy.CRN +",0, true)\">Remove</button></td></tr>";	      //new remove function?  		
+			list += "<tr><td>"+ classy.cname +"</td><td>" + classy.CRN + "</td><td>" + days + "</td><td>" + times + "</td><td>" + rooms + "</td><td>" + classy.instructor + "</td><td id=\"buttonCol\"><button class=\"scheduleButton\" onClick=\"addToSchedule(currentSchedule, courses, "+ classy.CRN +",0, true)\">Remove</button></td></tr>";	      //new remove function?  		
+		}
 	}
 	
 	if(list != undefined)

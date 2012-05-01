@@ -2,8 +2,13 @@
 	overflow:hidden;
 }*/
 table#cListTable{
-	top:970px;
+	top:10px;
 	font-family:monospace;
+	position:relative;
+}
+
+div#currentList {
+	top:940px;
 	position:relative;
 }
 
