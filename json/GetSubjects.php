@@ -1,10 +1,10 @@
 <?php
 include_once dirname(__FILE__)."/SQL_Functions.php";
 if (empty($_GET['semester'])){
-     $semester = '2012s';
-     } else {
-          $semester = $_GET['semester'];
-          }
+    $semester = '2012s';
+} else {
+    $semester = $_GET['semester'];
+}
 $return_array = Array("success" => true);
 $result = GetDepartments($semester);
 if (!$result){

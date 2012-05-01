@@ -29,7 +29,6 @@ if (!$result){
         $return_array['number_of_rows']++;
     }
     $return_array['data'] = $data;
-    mysql_free_result($result);
 }
 
 echo json_encode($return_array);
